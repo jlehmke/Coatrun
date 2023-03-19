@@ -18,8 +18,8 @@ from threading import Thread
 import socket
 import logging
 
-from .utils import install_locale, parse_temperature_report
-install_locale('pronterface')
+from .utils import parse_temperature_report
+
 
 RPC_PORT = 7978
 
@@ -36,7 +36,7 @@ class ProntRPC:
                                                  allow_none = True,
                                                  logRequests = False)
                 if used_port != port:
-                    logging.warning(_("RPC server bound on non-default port %d") % used_port)
+                    logging.warning("RPC server bound on non-default port %d" % used_port)
                 break
             except socket.error as e:
                 if e.errno == 98:
@@ -45,8 +45,6 @@ class ProntRPC:
                 else:
                     raise
         self.server.register_function(self.get_status, 'status')
-        self.server.register_function(self.set_extruder_temperature,'settemp')
-        self.server.register_function(self.set_bed_temperature,'setbedtemp')
         self.server.register_function(self.load_file,'load_file')
         self.server.register_function(self.startprint,'startprint')
         self.server.register_function(self.pauseprint,'pauseprint')
@@ -75,24 +73,12 @@ class ProntRPC:
             eta = self.pronsole.get_eta()
         else:
             eta = None
-        if self.pronsole.tempreadings:
-            temps = parse_temperature_report(self.pronsole.tempreadings)
-        else:
-            temps = None
         z = self.pronsole.curlayer
         return {"filename": self.pronsole.filename,
                 "progress": progress,
                 "eta": eta,
-                "temps": temps,
                 "z": z,
                 }
-    def set_extruder_temperature(self, targettemp):
-        if self.pronsole.p.online:
-           self.pronsole.p.send_now("M104 S" + targettemp)
-
-    def set_bed_temperature(self,targettemp):
-        if self.pronsole.p.online:
-           self.pronsole.p.send_now("M140 S" + targettemp)
 
     def load_file(self,filename):
         self.pronsole.do_load(filename)

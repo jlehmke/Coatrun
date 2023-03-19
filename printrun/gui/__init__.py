@@ -20,11 +20,8 @@ try:
     if wx.VERSION < (4,):
         raise ImportError()
 except:
-    logging.error(_("WX >= 4 is not installed. This program requires WX >= 4 to run."))
+    logging.error("WX >= 4 is not installed. This program requires WX >= 4 to run.")
     raise
-
-from printrun.utils import install_locale
-install_locale('pronterface')
 
 from .controls import ControlsSizer, add_extra_controls
 from .viz import VizPane
@@ -182,9 +179,9 @@ class MainWindow(wx.Frame):
         page1panel.SetSizer(self.mainsizer_page1)
         page2panel.SetSizer(self.mainsizer)
         self.notesizer.Add(self.notebook, 1, wx.EXPAND)
-        self.notebook.AddPage(page1panel, _("Commands"))
-        self.notebook.AddPage(page2panel, _("Status"))
-        if self.settings.uimode == _("Tabbed with platers"):
+        self.notebook.AddPage(page1panel, "Commands")
+        self.notebook.AddPage(page2panel, "Status")
+        if self.settings.uimode == "Tabbed with platers":
             from printrun.stlplater import StlPlaterPanel
             from printrun.gcodeplater import GcodePlaterPanel
             page3panel = StlPlaterPanel(parent = self.notebook,
@@ -200,8 +197,8 @@ class MainWindow(wx.Frame):
                                           antialias_samples = int(self.settings.antialias3dsamples))
             self.registerPanel(page3panel)
             self.registerPanel(page4panel)
-            self.notebook.AddPage(page3panel, _("Plater"))
-            self.notebook.AddPage(page4panel, _("G-Code Plater"))
+            self.notebook.AddPage(page3panel, "Plater")
+            self.notebook.AddPage(page4panel, "G-Code Plater")
         self.panel.SetSizer(self.notesizer)
         self.panel.Bind(wx.EVT_MOUSE_EVENTS, self.editbutton)
 

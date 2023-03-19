@@ -38,9 +38,6 @@ from pyglet.gl import glPushMatrix, glPopMatrix, glTranslatef, \
     GL_NORMAL_ARRAY, glNormalPointer, GL_LIGHTING, glColor3f
 from pyglet.graphics.vertexbuffer import create_buffer, VertexBufferObject
 
-from printrun.utils import install_locale
-install_locale('pronterface')
-
 def vec(*args):
     return (GLfloat * len(args))(*args)
 
@@ -709,8 +706,8 @@ class GcodeModel(Model):
 
         t_end = time.time()
 
-        logging.debug(_('Initialized 3D visualization in %.2f seconds') % (t_end - t_start))
-        logging.debug(_('Vertex count: %d') % ((len(self.vertices) + len(self.travels)) // 3))
+        logging.debug('Initialized 3D visualization in %.2f seconds' % (t_end - t_start))
+        logging.debug('Vertex count: %d' % ((len(self.vertices) + len(self.travels)) // 3))
         yield None
 
     def copy(self):
@@ -1020,8 +1017,8 @@ class GcodeModelLight(Model):
 
         t_end = time.time()
 
-        logging.debug(_('Initialized 3D visualization in %.2f seconds') % (t_end - t_start))
-        logging.debug(_('Vertex count: %d') % (len(self.vertices) // 3))
+        logging.debug('Initialized 3D visualization in %.2f seconds' % (t_end - t_start))
+        logging.debug('Vertex count: %d' % (len(self.vertices) // 3))
         yield None
 
     def copy(self):

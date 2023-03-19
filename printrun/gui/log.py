@@ -29,7 +29,7 @@ class LogPane(wx.BoxSizer):
         bottom_panel = root.newPanel(parentpanel)
         lbrs = wx.BoxSizer(wx.HORIZONTAL)
         root.commandbox = wx.TextCtrl(bottom_panel, style = wx.TE_PROCESS_ENTER)
-        root.commandbox.SetToolTip(wx.ToolTip(_("Send commands to printer\n(Type 'help' for simple\nhelp function)")))
+        root.commandbox.SetToolTip(wx.ToolTip("Send commands to printer\n(Type 'help' for simple\nhelp function)"))
         root.commandbox.Hint = 'Command to [S]end'
         root.commandbox.Bind(wx.EVT_TEXT_ENTER, root.sendline)
         root.commandbox.Bind(wx.EVT_CHAR, root.cbkey)
@@ -43,6 +43,6 @@ class LogPane(wx.BoxSizer):
         root.commandbox.history = [""]
         root.commandbox.histindex = 1
         lbrs.Add(root.commandbox, 1)
-        root.sendbtn = make_button(bottom_panel, _("Send"), root.sendline, _("Send Command to Printer"), style = wx.BU_EXACTFIT, container = lbrs)
+        root.sendbtn = make_button(bottom_panel, "Send", root.sendline, "Send Command to Printer", style = wx.BU_EXACTFIT, container = lbrs)
         bottom_panel.SetSizer(lbrs)
         self.Add(bottom_panel, 0, wx.EXPAND)

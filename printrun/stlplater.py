@@ -17,11 +17,6 @@
 
 import os
 
-# Set up Internationalization using gettext
-# searching for installed locales on /usr/share; uses relative folder if not found (windows)
-from .utils import install_locale
-install_locale('pronterface')
-
 import wx
 import time
 import logging
@@ -215,8 +210,8 @@ class showstl(wx.Window):
 
 class StlPlaterPanel(PlaterPanel):
 
-    load_wildcard = _("STL files (*.stl;*.STL)|*.stl;*.STL|OpenSCAD files (*.scad)|*.scad")
-    save_wildcard = _("STL files (*.stl;*.STL)|*.stl;*.STL")
+    load_wildcard = "STL files (*.stl;*.STL)|*.stl;*.STL|OpenSCAD files (*.scad)|*.scad"
+    save_wildcard = "STL files (*.stl;*.STL)|*.stl;*.STL"
 
     def prepare_ui(self, filenames = [], callback = None,
                    parent = None, build_dimensions = None, circular_platform = False,
@@ -232,9 +227,9 @@ class StlPlaterPanel(PlaterPanel):
                                           antialias_samples = antialias_samples)
             # Cutting tool
             nrows = self.menusizer.GetRows()
-            self.menusizer.Add(wx.StaticText(self.menupanel, -1, _("Cut along:")),
+            self.menusizer.Add(wx.StaticText(self.menupanel, -1, "Cut along:"),
                                pos = (nrows, 0), span = (1, 1), flag = wx.ALIGN_CENTER)
-            cutconfirmbutton = wx.Button(self.menupanel, label = _("Confirm cut"))
+            cutconfirmbutton = wx.Button(self.menupanel, label = "Confirm cut")
             cutconfirmbutton.Bind(wx.EVT_BUTTON, self.cut_confirm)
             cutconfirmbutton.Disable()
             self.cutconfirmbutton = cutconfirmbutton
@@ -242,22 +237,22 @@ class StlPlaterPanel(PlaterPanel):
             cutpanel = wx.Panel(self.menupanel)
             cutsizer = self.cutsizer = wx.BoxSizer(wx.HORIZONTAL)
             cutpanel.SetSizer(cutsizer)
-            cutxplusbutton = wx.ToggleButton(cutpanel, label = _(">X"), style = wx.BU_EXACTFIT)
+            cutxplusbutton = wx.ToggleButton(cutpanel, label = ">X", style = wx.BU_EXACTFIT)
             cutxplusbutton.Bind(wx.EVT_TOGGLEBUTTON, lambda event: self.start_cutting_tool(event, "x", 1))
             cutsizer.Add(cutxplusbutton, 1, flag = wx.EXPAND)
-            cutzplusbutton = wx.ToggleButton(cutpanel, label = _(">Y"), style = wx.BU_EXACTFIT)
+            cutzplusbutton = wx.ToggleButton(cutpanel, label = ">Y", style = wx.BU_EXACTFIT)
             cutzplusbutton.Bind(wx.EVT_TOGGLEBUTTON, lambda event: self.start_cutting_tool(event, "y", 1))
             cutsizer.Add(cutzplusbutton, 1, flag = wx.EXPAND)
-            cutzplusbutton = wx.ToggleButton(cutpanel, label = _(">Z"), style = wx.BU_EXACTFIT)
+            cutzplusbutton = wx.ToggleButton(cutpanel, label = ">Z", style = wx.BU_EXACTFIT)
             cutzplusbutton.Bind(wx.EVT_TOGGLEBUTTON, lambda event: self.start_cutting_tool(event, "z", 1))
             cutsizer.Add(cutzplusbutton, 1, flag = wx.EXPAND)
-            cutxminusbutton = wx.ToggleButton(cutpanel, label = _("<X"), style = wx.BU_EXACTFIT)
+            cutxminusbutton = wx.ToggleButton(cutpanel, label = "<X", style = wx.BU_EXACTFIT)
             cutxminusbutton.Bind(wx.EVT_TOGGLEBUTTON, lambda event: self.start_cutting_tool(event, "x", -1))
             cutsizer.Add(cutxminusbutton, 1, flag = wx.EXPAND)
-            cutzminusbutton = wx.ToggleButton(cutpanel, label = _("<Y"), style = wx.BU_EXACTFIT)
+            cutzminusbutton = wx.ToggleButton(cutpanel, label = "<Y", style = wx.BU_EXACTFIT)
             cutzminusbutton.Bind(wx.EVT_TOGGLEBUTTON, lambda event: self.start_cutting_tool(event, "y", -1))
             cutsizer.Add(cutzminusbutton, 1, flag = wx.EXPAND)
-            cutzminusbutton = wx.ToggleButton(cutpanel, label = _("<Z"), style = wx.BU_EXACTFIT)
+            cutzminusbutton = wx.ToggleButton(cutpanel, label = "<Z", style = wx.BU_EXACTFIT)
             cutzminusbutton.Bind(wx.EVT_TOGGLEBUTTON, lambda event: self.start_cutting_tool(event, "z", -1))
             cutsizer.Add(cutzminusbutton, 1, flag = wx.EXPAND)
             self.menusizer.Add(cutpanel, pos = (nrows + 1, 0), span = (1, 2), flag = wx.EXPAND)
@@ -288,7 +283,7 @@ class StlPlaterPanel(PlaterPanel):
         model = self.models[name]
         transformation = transformation_matrix(model)
         transformed = model.transform(transformation)
-        logging.info(_("Cutting %s alongside %s axis") % (name, self.cutting_axis))
+        logging.info("Cutting %s alongside %s axis" % (name, self.cutting_axis))
         axes = ["x", "y", "z"]
         cut = transformed.cut(axes.index(self.cutting_axis),
                               self.cutting_direction,
@@ -371,21 +366,21 @@ class StlPlaterPanel(PlaterPanel):
             try:
                 self.load_stl(filename)
             except:
-                dlg = wx.MessageDialog(self, _("Loading STL file failed"),
-                                       _("Error:") + traceback.format_exc(),
+                dlg = wx.MessageDialog(self, "Loading STL file failed",
+                                       "Error:" + traceback.format_exc(),
                                        wx.OK)
                 dlg.ShowModal()
-                logging.error(_("Loading STL file failed:")
+                logging.error("Loading STL file failed:"
                               + "\n" + traceback.format_exc())
         elif filename.lower().endswith(".scad"):
             try:
                 self.load_scad(filename)
             except:
-                dlg = wx.MessageDialog(self, _("Loading OpenSCAD file failed"),
-                                       _("Error:") + traceback.format_exc(),
+                dlg = wx.MessageDialog(self, "Loading OpenSCAD file failed",
+                                       "Error:" + traceback.format_exc(),
                                        wx.OK)
                 dlg.ShowModal()
-                logging.error(_("Loading OpenSCAD file failed:")
+                logging.error("Loading OpenSCAD file failed:"
                               + "\n" + traceback.format_exc())
 
     def load_scad(self, name):
@@ -417,7 +412,7 @@ class StlPlaterPanel(PlaterPanel):
 
     def load_stl(self, name):
         if not os.path.exists(name):
-            logging.error(_("Couldn't load non-existing file %s") % name)
+            logging.error("Couldn't load non-existing file %s" % name)
             return
         path = os.path.split(name)[0]
         self.basedir = path
@@ -467,7 +462,7 @@ class StlPlaterPanel(PlaterPanel):
                 model = model.transform(transformation_matrix(model))
                 facets += model.facets
             stltool.emitstl(name, facets, "plater_export")
-            logging.info(_("Wrote plate to %s") % name)
+            logging.info("Wrote plate to %s" % name)
 
     def autoplate(self, event = None):
         if self.simarrange_path:
@@ -482,7 +477,7 @@ class StlPlaterPanel(PlaterPanel):
             super(StlPlaterPanel, self).autoplate()
 
     def autoplate_simarrange(self):
-        logging.info(_("Autoplating using simarrange"))
+        logging.info("Autoplating using simarrange")
         models = dict(self.models)
         files = [model.filename for model in models.values()]
         command = [self.simarrange_path, "--dryrun",
@@ -497,7 +492,7 @@ class StlPlaterPanel(PlaterPanel):
             if "Generating plate" in line:
                 plateid = int(line.split()[-1])
                 if plateid > 0:
-                    logging.error(_("Plate full, please remove some objects"))
+                    logging.error("Plate full, please remove some objects")
                     break
             if "File:" in line:
                 bits = pos_regexp.match(line).groups()
@@ -514,6 +509,6 @@ class StlPlaterPanel(PlaterPanel):
                         del models[name]
                         break
         if p.wait() != 0:
-            raise RuntimeError(_("simarrange failed"))
+            raise RuntimeError("simarrange failed")
 
 StlPlater = make_plater(StlPlaterPanel)

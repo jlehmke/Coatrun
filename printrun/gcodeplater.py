@@ -17,8 +17,8 @@
 
 # Set up Internationalization using gettext
 # searching for installed locales on /usr/share; uses relative folder if not found (windows)
-from .utils import install_locale, get_home_pos
-install_locale('pronterface')
+from .utils import get_home_pos
+
 
 import wx
 import sys
@@ -74,8 +74,8 @@ def rewrite_gline(centeroffset, gline, cosr, sinr):
 
 class GcodePlaterPanel(PlaterPanel):
 
-    load_wildcard = _("GCODE files (*.gcode;*.GCODE;*.g)") + "|*.gcode;*.gco;*.g"
-    save_wildcard = _("GCODE files (*.gcode;*.GCODE;*.g)") + "|*.gcode;*.gco;*.g"
+    load_wildcard = "GCODE files (*.gcode;*.GCODE;*.g)" + "|*.gcode;*.gco;*.g"
+    save_wildcard = "GCODE files (*.gcode;*.GCODE;*.g)" + "|*.gcode;*.gco;*.g"
 
     def prepare_ui(self, filenames = [], callback = None,
                    parent = None, build_dimensions = None,
@@ -196,7 +196,7 @@ class GcodePlaterPanel(PlaterPanel):
                 laste[model_i] = analyzer.current_e
                 lastrelative[model_i] = analyzer.relative
                 lasttool[model_i] = analyzer.current_tool
-        logging.info(_("Exported merged G-Codes to %s") % name)
+        logging.info("Exported merged G-Codes to %s" % name)
 
     def export_sequential(self, name):
         models = list(self.models.values())
@@ -233,7 +233,7 @@ class GcodePlaterPanel(PlaterPanel):
                                               - trans[1] + gline.current_y,
                                               - trans[2] + gline.current_z)
                         break
-        logging.info(_("Exported merged G-Codes to %s") % name)
+        logging.info("Exported merged G-Codes to %s" % name)
 
 GcodePlater = make_plater(GcodePlaterPanel)
 

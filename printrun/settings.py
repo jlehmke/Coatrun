@@ -34,8 +34,8 @@ def setting_add_tooltip(func):
             if helptxt.find("\n") >= 0:
                 sep = "\n\n"
         if self.default != "":
-            deftxt = _("Default: ")
-            resethelp = _("(Control-doubleclick to reset to default value)")
+            deftxt = "Default: "
+            resethelp = "(Control-doubleclick to reset to default value)"
             if len(repr(self.default)) > 10:
                 deftxt += "\n    " + repr(self.default).strip("'") + "\n" + resethelp
             else:
@@ -286,31 +286,31 @@ class BuildDimensionsSetting(wxSetting):
         def addwidget(*pos):
             self.widget.Add(self.widgets[-1], pos = pos, flag = wx.RIGHT | wx.EXPAND, border = 5)
         self.widget = wx.GridBagSizer()
-        addlabel(_("Width"), (0, 0))
+        addlabel("Width", (0, 0))
         w(build_dimensions[0], 0, 2000)
         addwidget(0, 1)
-        addlabel(_("Depth"), (0, 2))
+        addlabel("Depth", (0, 2))
         w(build_dimensions[1], 0, 2000)
         addwidget(0, 3)
-        addlabel(_("Height"), (0, 4))
+        addlabel("Height", (0, 4))
         w(build_dimensions[2], 0, 2000)
         addwidget(0, 5)
-        addlabel(_("X offset"), (1, 0))
+        addlabel("X offset", (1, 0))
         w(build_dimensions[3], -2000, 2000)
         addwidget(1, 1)
-        addlabel(_("Y offset"), (1, 2))
+        addlabel("Y offset", (1, 2))
         w(build_dimensions[4], -2000, 2000)
         addwidget(1, 3)
-        addlabel(_("Z offset"), (1, 4))
+        addlabel("Z offset", (1, 4))
         w(build_dimensions[5], -2000, 2000)
         addwidget(1, 5)
-        addlabel(_("X home pos."), (2, 0))
+        addlabel("X home pos.", (2, 0))
         w(build_dimensions[6], -2000, 2000)
         addwidget(2, 1)
-        addlabel(_("Y home pos."), (2, 2))
+        addlabel("Y home pos.", (2, 2))
         w(build_dimensions[7], -2000, 2000)
         addwidget(2, 3)
-        addlabel(_("Z home pos."), (2, 4))
+        addlabel("Z home pos.", (2, 4))
         w(build_dimensions[8], -2000, 2000)
         addwidget(2, 5)
         return self.widget
@@ -325,34 +325,25 @@ class Settings:
     def __init__(self, root):
         # defaults here.
         # the initial value determines the type
-        self._add(StringSetting("port", "", _("Serial port"), _("Port used to communicate with printer")))
-        self._add(ComboSetting("baudrate", 115200, self.__baudrate_list(), _("Baud rate"), _("Communications Speed")))
-        self._add(BooleanSetting("tcp_streaming_mode", False, _("TCP streaming mode"), _("When using a TCP connection to the printer, the streaming mode will not wait for acks from the printer to send new commands. This will break things such as ETA prediction, but can result in smoother prints.")), root.update_tcp_streaming_mode)
-        self._add(BooleanSetting("rpc_server", True, _("RPC server"), _("Enable RPC server to allow remotely querying print status")), root.update_rpc_server)
-        self._add(BooleanSetting("dtr", True, _("DTR"), _("Disabling DTR would prevent Arduino (RAMPS) from resetting upon connection"), "Printer"))
+        self._add(StringSetting("port", "", "Serial port", "Port used to communicate with printer"))
+        self._add(ComboSetting("baudrate", 115200, self.__baudrate_list(), "Baud rate", "Communications Speed"))
+        self._add(BooleanSetting("tcp_streaming_mode", False, "TCP streaming mode", "When using a TCP connection to the printer, the streaming mode will not wait for acks from the printer to send new commands. This will break things such as ETA prediction, but can result in smoother prints."), root.update_tcp_streaming_mode)
+        self._add(BooleanSetting("rpc_server", True, "RPC server", "Enable RPC server to allow remotely querying print status"), root.update_rpc_server)
+        self._add(BooleanSetting("dtr", True, "DTR", "Disabling DTR would prevent Arduino (RAMPS) from resetting upon connection", "Printer"))
         if sys.platform != "win32":
-            self._add(StringSetting("devicepath", "", _("Device name pattern"), _("Custom device pattern: for example /dev/3DP_* "), "Printer"))
-        self._add(SpinSetting("bedtemp_abs", 110, 0, 400, _("Bed temperature for ABS"), _("Heated Build Platform temp for ABS (deg C)"), "Printer"), root.set_temp_preset)
-        self._add(SpinSetting("bedtemp_pla", 60, 0, 400, _("Bed temperature for PLA"), _("Heated Build Platform temp for PLA (deg C)"), "Printer"), root.set_temp_preset)
-        self._add(SpinSetting("temperature_abs", 230, 0, 400, _("Extruder temperature for ABS"), _("Extruder temp for ABS (deg C)"), "Printer"), root.set_temp_preset)
-        self._add(SpinSetting("temperature_pla", 185, 0, 400, _("Extruder temperature for PLA"), _("Extruder temp for PLA (deg C)"), "Printer"), root.set_temp_preset)
-        self._add(SpinSetting("xy_feedrate", 3000, 0, 50000, _("X && Y manual feedrate"), _("Feedrate for Control Panel Moves in X and Y (mm/min)"), "Printer"))
-        self._add(SpinSetting("z_feedrate", 100, 0, 50000, _("Z manual feedrate"), _("Feedrate for Control Panel Moves in Z (mm/min)"), "Printer"))
-        self._add(SpinSetting("e_feedrate", 100, 0, 1000, _("E manual feedrate"), _("Feedrate for Control Panel Moves in Extrusions (mm/min)"), "Printer"))
+            self._add(StringSetting("devicepath", "", "Device name pattern", "Custom device pattern: for example /dev/3DP_* ", "Printer"))
+        self._add(SpinSetting("xy_feedrate", 3000, 0, 50000, "X && Y manual feedrate", "Feedrate for Control Panel Moves in X and Y (mm/min)", "Printer"))
+        self._add(SpinSetting("z_feedrate", 100, 0, 50000, "Z manual feedrate", "Feedrate for Control Panel Moves in Z (mm/min)", "Printer"))
+        self._add(SpinSetting("e_feedrate", 100, 0, 1000, "E manual feedrate", "Feedrate for Control Panel Moves in Extrusions (mm/min)", "Printer"))
         defaultslicerpath = ""
-        if getattr(sys, 'frozen', False):
-            if sys.platform == "darwin":
-                defaultslicerpath = "/Applications/Slic3r.app/Contents/MacOS/"
-            elif sys.platform == "win32":
-                defaultslicerpath = ".\\slic3r\\"
-        self._add(StringSetting("slicecommandpath", defaultslicerpath, _("Path to slicer"), _("Path to slicer"), "External"))
+        self._add(StringSetting("slicecommandpath", defaultslicerpath, "Path to slicer", "Path to slicer", "External"))
         slicer = 'slic3r-console' if sys.platform == 'win32' else 'slic3r'
-        self._add(StringSetting("slicecommand", slicer + ' $s --output $o', _("Slice command"), _("Slice command"), "External"))
-        self._add(StringSetting("sliceoptscommand", "slic3r", _("Slicer options command"), _("Slice settings command"), "External"))
-        self._add(StringSetting("start_command", "", _("Start command"), _("Executable to run when the print is started"), "External"))
-        self._add(StringSetting("final_command", "", _("Final command"), _("Executable to run when the print is finished"), "External"))
-        self._add(StringSetting("error_command", "", _("Error command"), _("Executable to run when an error occurs"), "External"))
-        self._add(StringSetting("log_path", str(Path.home()), _("Log path"), _("Path to the log file. An empty path will log to the console."), "UI"))
+        self._add(StringSetting("slicecommand", slicer + ' $s --output $o', "Slice command", "Slice command", "External"))
+        self._add(StringSetting("sliceoptscommand", "slic3r", "Slicer options command", "Slice settings command", "External"))
+        self._add(StringSetting("start_command", "", "Start command", "Executable to run when the print is started", "External"))
+        self._add(StringSetting("final_command", "", "Final command", "Executable to run when the print is finished", "External"))
+        self._add(StringSetting("error_command", "", "Error command", "Executable to run when an error occurs", "External"))
+        self._add(StringSetting("log_path", str(Path.home()), "Log path", "Path to the log file. An empty path will log to the console.", "UI"))
 
         self._add(HiddenSetting("project_offset_x", 0.0))
         self._add(HiddenSetting("project_offset_y", 0.0))

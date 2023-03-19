@@ -169,7 +169,7 @@ class wxGLPanel(BASE_CLASS):
                 self.DrawCanvas()
             except pyglet.gl.lib.GLException:
                 self.gl_broken = True
-                logging.error(_("OpenGL failed, disabling it:")
+                logging.error("OpenGL failed, disabling it:"
                               + "\n" + traceback.format_exc())
         event.Skip()
 

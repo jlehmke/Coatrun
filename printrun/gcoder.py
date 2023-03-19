@@ -56,14 +56,9 @@ class PyLightLine:
     def __getattr__(self, name):
         return None
 
-try:
-    from . import gcoder_line
-    Line = gcoder_line.GLine
-    LightLine = gcoder_line.GLightLine
-except Exception as e:
-    logging.warning("Memory-efficient GCoder implementation unavailable: %s" % e)
-    Line = PyLine
-    LightLine = PyLightLine
+# Memory efficient alternative was implemented here
+Line = PyLine
+LightLine = PyLightLine
 
 def find_specific_code(line, code):
     exp = specific_exp % code

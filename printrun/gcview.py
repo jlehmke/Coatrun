@@ -30,8 +30,8 @@ from pyglet.gl import glPushMatrix, glPopMatrix, \
 
 from .gviz import GvizBaseFrame
 
-from .utils import imagefile, install_locale, get_home_pos
-install_locale('pronterface')
+from .utils import imagefile, get_home_pos
+
 
 def create_model(light):
     if light:
@@ -105,7 +105,7 @@ class GcodeViewPanel(wxGLPanel):
         if filtered:
             injector(self.parent.model.gcode, l, filtered[0])
         else:
-            logging.error(_("Invalid layer for injection"))
+            logging.error("Invalid layer for injection")
 
     def editlayer(self):
         l = self.parent.model.num_layers_to_draw
@@ -113,7 +113,7 @@ class GcodeViewPanel(wxGLPanel):
         if filtered:
             injector_edit(self.parent.model.gcode, l, filtered[0])
         else:
-            logging.error(_("Invalid layer for edition"))
+            logging.error("Invalid layer for edition")
 
     def setlayercb(self, layer):
         pass
@@ -436,8 +436,8 @@ class GcodeViewFrame(GvizBaseFrame, GcodeViewLoader):
         self.objects = [GCObject(self.platform), GCObject(None)]
 
         fit_image = wx.Image(imagefile('fit.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-        self.toolbar.InsertTool(6, 8, " " + _("Fit to plate"), fit_image,
-                                     shortHelp = _("Fit to plate [F]"),
+        self.toolbar.InsertTool(6, 8, " " + "Fit to plate", fit_image,
+                                     shortHelp = "Fit to plate [F]",
                                      longHelp = '')
         self.toolbar.Realize()
         self.glpanel = GcodeViewPanel(panel,
@@ -465,9 +465,9 @@ class GcodeViewFrame(GvizBaseFrame, GcodeViewLoader):
         if filtered:
             true_layer = filtered[0]
             z = self.model.gcode.all_layers[true_layer].z
-            message = _("Layer %d -%s Z = %.03f mm") % (layer, extra, z)
+            message = "Layer %d -%s Z = %.03f mm" % (layer, extra, z)
         else:
-            message = _("Entire object")
+            message = "Entire object"
         wx.CallAfter(self.SetStatusText, message, 0)
 
     def process_slider(self, event):
@@ -479,7 +479,7 @@ class GcodeViewFrame(GvizBaseFrame, GcodeViewLoader):
             self.update_status("")
             wx.CallAfter(self.Refresh)
         else:
-            logging.info(_("G-Code view, can't process slider. Please wait until model is loaded completely."))
+            logging.info("G-Code view, can't process slider. Please wait until model is loaded completely.")
 
     def set_current_gline(self, gline):
         if gline.is_move and gline.gcview_end_vertex is not None \
@@ -499,7 +499,7 @@ class GcodeViewFrame(GvizBaseFrame, GcodeViewLoader):
             GcodeViewLoader.addfile(self, gcode)
         self.layerslider.SetRange(1, self.model.max_layers + 1)
         self.layerslider.SetValue(self.model.max_layers + 1)
-        wx.CallAfter(self.SetStatusText, _("Entire object"), 0)
+        wx.CallAfter(self.SetStatusText, "Entire object", 0)
         wx.CallAfter(self.Refresh)
 
     def clear(self):

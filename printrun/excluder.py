@@ -16,17 +16,17 @@
 import wx
 from printrun import gviz
 
-from .utils import imagefile, install_locale
-install_locale('pronterface')
+from .utils import imagefile
+
 
 class ExcluderWindow(gviz.GvizWindow):
 
     def __init__(self, excluder, *args, **kwargs):
         super(ExcluderWindow, self).__init__(*args, **kwargs)
-        self.SetTitle(_("Part excluder: draw rectangles where print instructions should be ignored"))
-        self.toolbar.AddTool(128, " " + _("Reset selection"),
+        self.SetTitle("Part excluder: draw rectangles where print instructions should be ignored")
+        self.toolbar.AddTool(128, " " + "Reset selection",
                              wx.Image(imagefile('reset.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap(),
-                             _("Reset selection"))
+                             "Reset selection")
         self.Bind(wx.EVT_TOOL, self.reset_selection, id = 128)
         self.parent = excluder
         self.p.paint_overlay = self.paint_selection

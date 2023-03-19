@@ -21,41 +21,11 @@ import gettext
 import datetime
 import subprocess
 import shlex
-import locale
 import logging
 
 from pathlib import Path
 
 DATADIR = os.path.join(sys.prefix, 'share')
-
-
-def set_utf8_locale():
-    """Make sure we read/write all text files in UTF-8"""
-    lang, encoding = locale.getlocale()
-    if encoding != 'UTF-8':
-        locale.setlocale(locale.LC_CTYPE, (lang, 'UTF-8'))
-
-# Set up Internationalization using gettext
-# searching for installed locales on /usr/share; uses relative folder if not
-# found (windows)
-def install_locale(domain):
-    shared_locale_dir = os.path.join(DATADIR, 'locale')
-    translation = None
-    lang = locale.getdefaultlocale()
-    osPlatform = platform.system()
-
-    if osPlatform == "Darwin":
-        # improvised workaround for macOS crash with gettext.translation, see issue #1154
-        if os.path.exists(shared_locale_dir): 
-            gettext.install(domain, shared_locale_dir) 
-        else: 
-            gettext.install(domain, './locale') 
-    else:
-        if os.path.exists('./locale'):
-            translation = gettext.translation(domain, './locale', languages=[lang[0]], fallback= True)
-        else:
-            translation = gettext.translation(domain, shared_locale_dir, languages=[lang[0]], fallback= True)
-        translation.install()
 
 class LogFormatter(logging.Formatter):
     def __init__(self, format_default, format_info):
@@ -296,13 +266,13 @@ def hexcolor_to_float(color, components):
 
 def check_rgb_color(color):
     if len(color[1:]) % 3 != 0:
-        ex = ValueError(_("Color must be specified as #RGB"))
+        ex = ValueError("Color must be specified as #RGB")
         ex.from_validator = True
         raise ex
 
 def check_rgba_color(color):
     if len(color[1:]) % 4 != 0:
-        ex = ValueError(_("Color must be specified as #RGBA"))
+        ex = ValueError("Color must be specified as #RGBA")
         ex.from_validator = True
         raise ex
 
