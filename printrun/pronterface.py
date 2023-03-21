@@ -276,8 +276,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         if self.settings.uimode in ("Tabbed", "Tabbed with platers"):
             self.createTabbedGui()
         else:
-            self.createGui(self.settings.uimode == "Compact",
-                           self.settings.controlsmode == "Mini")
+            self.createGui(self.settings.uimode == "Compact", False)
 
         if self.splitterwindow:
             self.splitterwindow.SetSashPosition(self.settings.last_sash_position)
@@ -949,18 +948,12 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.settings._add(BooleanSetting("display_progress_on_printer", False, "Display progress on printer", "Show progress on printers display (sent via M117, might not be supported by all printers)", "Printer"))
         self.settings._add(SpinSetting("printer_progress_update_interval", 10., 0, 120, "Printer progress update interval", "Interval in which pronterface sends the progress to the printer if enabled, in seconds", "Printer"))
         self.settings._add(BooleanSetting("cutting_as_extrusion", True, "Display cutting moves", "Show moves where spindle is active as printing moves", "Printer"))
-        self.settings._add(ComboSetting("uimode", "Standard", ["Standard", "Compact", ], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
+        self.settings._add(ComboSetting("uimode", "Compact", ["Standard", "Compact", ], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
         #self.settings._add(ComboSetting("uimode", "Standard", ["Standard", "Compact", "Tabbed", "Tabbed with platers"], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
-        self.settings._add(ComboSetting("controlsmode", "Standard", ("Standard", "Mini"), "Controls mode", "Standard controls include all controls needed for printer setup and calibration, while Mini controls are limited to the ones needed for daily printing", "UI"), self.reload_ui)
         self.settings._add(BooleanSetting("slic3rintegration", False, "Enable Slic3r integration", "Add a menu to select Slic3r profiles directly from Pronterface", "UI"), self.reload_ui)
         self.settings._add(BooleanSetting("slic3rupdate", False, "Update Slic3r default presets", "When selecting a profile in Slic3r integration menu, also save it as the default Slic3r preset", "UI"))
-        self.settings._add(ComboSetting("mainviz", "3D", ("2D", "3D", "None"), "Main visualization", "Select visualization for main window.", "Viewer"), self.reload_ui)
-        self.settings._add(BooleanSetting("viz3d", False, "Use 3D in GCode viewer window", "Use 3D mode instead of 2D layered mode in the visualization window", "Viewer"), self.reload_ui)
-        self.settings._add(StaticTextSetting("separator_3d_viewer", "3D viewer options", "", group = "Viewer"))
-        self.settings._add(BooleanSetting("light3d", False, "Use a lighter 3D visualization", "Use a lighter visualization with simple lines instead of extruded paths for 3D viewer", "Viewer"), self.reload_ui)
         self.settings._add(BooleanSetting("perspective", False, "Use a perspective view instead of orthographic", "A perspective view looks more realistic, but is a bit more confusing to navigate", "Viewer"), self.reload_ui)
         self.settings._add(ComboSetting("antialias3dsamples", "0", ["0", "2", "4", "8"], "Number of anti-aliasing samples", "Amount of anti-aliasing samples used in the 3D viewer", "Viewer"), self.reload_ui)
-        self.settings._add(BooleanSetting("trackcurrentlayer3d", False, "Track current layer in main 3D view", "Track the currently printing layer in the main 3D visualization", "Viewer"))
         self.settings._add(FloatSpinSetting("gcview_path_width", 0.4, 0.01, 2, "Extrusion width for 3D viewer", "Width of printed path in 3D viewer", "Viewer", increment = 0.05), self.update_gcview_params)
         self.settings._add(FloatSpinSetting("gcview_path_height", 0.3, 0.01, 2, "Layer height for 3D viewer", "Height of printed path in 3D viewer", "Viewer", increment = 0.05), self.update_gcview_params)
         self.settings._add(BooleanSetting("lockbox", False, "Display interface lock checkbox", "Display a checkbox that, when check, locks most of Pronterface", "UI"), self.reload_ui)
@@ -1543,10 +1536,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     def pre_gcode_load(self):
         self.loading_gcode = True
         self.loading_gcode_message = "Loading %s..." % self.filename
-        if self.settings.mainviz == "None":
-            gcode = gcoder.LightGCode(deferred = True)
-        else:
-            gcode = gcoder.GCode(deferred = True, cutting_as_extrusion = self.settings.cutting_as_extrusion)
+        gcode = gcoder.GCode(deferred = True, cutting_as_extrusion = self.settings.cutting_as_extrusion)
         self.viz_last_yield = 0
         self.viz_last_layer = -1
         self.start_viz_thread(gcode)
@@ -1766,8 +1756,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     def layer_change_cb(self, newlayer):
         """Callback when the printed layer changed"""
         pronsole.pronsole.layer_change_cb(self, newlayer)
-        if self.settings.mainviz != "3D" or self.settings.trackcurrentlayer3d:
-            wx.CallAfter(self.gviz.setlayer, newlayer)
+        wx.CallAfter(self.gviz.setlayer, newlayer)
 
     def update_pos(self):
         bits = gcoder.m114_exp.findall(self.posreport)
