@@ -543,6 +543,10 @@ class PronterWindow(MainWindow, pronsole.pronsole):
             self.gwindow.SetToolTip(wx.ToolTip("Mousewheel zooms the display\nShift / Mousewheel scrolls layers"))
             self.gwindow.Raise()
 
+    def show_edit_layer(self, event):
+        if self.fgcode:
+            self.gviz.editlayer()
+
     def setfeeds(self, e):
         self.feedrates_changed = True
         try:
