@@ -15,8 +15,6 @@
 
 import wx
 
-from .utils import make_autosize_button,make_button
-
 def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
     if not parentpanel: parentpanel = root.panel
     if root.settings.lockbox:
@@ -29,14 +27,17 @@ def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
         glob.Add(root.locker, 0, flag = wx.ALIGN_CENTER)
     ToolbarSizer = wx.WrapSizer if use_wrapsizer else wx.BoxSizer
     self = ToolbarSizer(wx.HORIZONTAL)
-    root.rescanbtn = make_autosize_button(parentpanel, "Port", root.rescanports, "Communication Settings\nClick to rescan ports")
-    self.Add(root.rescanbtn, 0, wx.TOP | wx.LEFT, 0)
+    root.rescanbtn = wx.Button(parentpanel, -1, "Port", size = (-1, -1), style = wx.BU_EXACTFIT)
+    root.rescanbtn.Bind(wx.EVT_BUTTON, root.rescanports)
+    root.rescanbtn.SetToolTip(wx.ToolTip("Communication Settings\nClick to rescan ports"))
+
+    self.Add(root.rescanbtn, 0, wx.ALIGN_CENTER | wx.LEFT, 0)
 
     root.serialport = wx.ComboBox(parentpanel, -1, choices = root.scanserial(),
                                   style = wx.CB_DROPDOWN)
     root.serialport.SetToolTip(wx.ToolTip("Select Port Printer is connected to"))
     root.rescanports()
-    self.Add(root.serialport)
+    self.Add(root.serialport, 0, wx.ALIGN_CENTER, 0)
 
     self.Add(wx.StaticText(parentpanel, -1, "@"), 0, wx.RIGHT | wx.ALIGN_CENTER, 0)
     root.baud = wx.ComboBox(parentpanel, -1,
@@ -49,43 +50,44 @@ def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
         root.baud.SetValue(str(root.settings.baudrate))
     except:
         pass
-    self.Add(root.baud)
+    self.Add(root.baud, 0, wx.ALIGN_CENTER, 0)
 
     if not hasattr(root, "connectbtn"):
         root.connectbtn_cb_var = root.connect
-        root.connectbtn = make_autosize_button(parentpanel, "&Connect", root.connectbtn_cb, "Connect to the printer")
+        root.connectbtn = wx.Button(parentpanel, -1, "&Connect", size = (-1, -1))
+        root.connectbtn.Bind(wx.EVT_BUTTON, root.connectbtn_cb)
+        root.connectbtn.SetToolTip(wx.ToolTip("Connect to the printer"))
         root.statefulControls.append(root.connectbtn)
     else:
         root.connectbtn.Reparent(parentpanel)
-    self.Add(root.connectbtn)
+    self.Add(root.connectbtn, 0, wx.ALIGN_CENTER, 0)
     if not hasattr(root, "resetbtn"):
-        root.resetbtn = make_autosize_button(parentpanel, "Reset", root.reset, "Reset the printer")
+        root.resetbtn = wx.Button(parentpanel, -1, "Reset", size = (-1, -1))
+        root.resetbtn.Bind(wx.EVT_BUTTON, root.reset)
+        root.resetbtn.SetToolTip(wx.ToolTip("Reset the printer"))
         root.statefulControls.append(root.resetbtn)
     else:
         root.resetbtn.Reparent(parentpanel)
-    self.Add(root.resetbtn)
+    self.Add(root.resetbtn, 0, wx.ALIGN_CENTER, 0)
 
     self.AddStretchSpacer(prop = 1)
 
-    root.loadbtn = make_button(parentpanel, "Load file", root.loadfile, "Load a 3D model file", self, (80,-1))
-    root.sdbtn = make_button(parentpanel, "SD", root.sdmenu, "SD Card Printing", self, (80,-1))
-    root.sdbtn.Reparent(parentpanel)
-    root.printerControls.append(root.sdbtn)
-    if not hasattr(root, "printbtn"):
-        root.printbtn = make_autosize_button(parentpanel, "Print", root.printfile, "Start Printing Loaded File")
-        root.statefulControls.append(root.printbtn)
-    else:
-        root.printbtn.Reparent(parentpanel)
-    self.Add(root.printbtn)
-    if not hasattr(root, "pausebtn"):
-        root.pausebtn = make_autosize_button(parentpanel, "Pause", root.pause, "Pause Current Print")
-        root.statefulControls.append(root.pausebtn)
-    else:
-        root.pausebtn.Reparent(parentpanel)
-    self.Add(root.pausebtn)
-    root.offbtn = make_autosize_button(parentpanel, "Off", root.off, "Turn printer off", self)
-    root.printerControls.append(root.offbtn)
+    self.toolbar = wx.ToolBar(parentpanel, -1, style = wx.TB_HORIZONTAL | wx.BORDER_SIMPLE | wx.TB_HORZ_TEXT)
 
+    root.loadbtn = self.toolbar.AddTool(1, 'Load file', wx.Image('images/import.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Load a mask file",)
+    self.toolbar.Bind(wx.EVT_TOOL, root.loadfile, id=1)
+
+    root.printbtn = self.toolbar.AddTool(2, 'Print', wx.Image('images/control-start.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Start job",)
+    self.toolbar.Bind(wx.EVT_TOOL, root.printfile, id=2)
+
+    root.pausebtn = self.toolbar.AddTool(3, 'Pause', wx.Image('images/control-pause.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Pause job",)
+    self.toolbar.Bind(wx.EVT_TOOL, root.pause, id=3)
+
+    root.offbtn = self.toolbar.AddTool(4, 'Off', wx.Image('images/power_button_off.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Turn printer off",)
+    self.toolbar.Bind(wx.EVT_TOOL, root.off, id=4)
+
+    self.Add(self.toolbar, 0, border = 5)
+    
     self.AddStretchSpacer(prop = 4)
 
     if root.settings.lockbox:

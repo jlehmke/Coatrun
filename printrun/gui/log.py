@@ -15,8 +15,6 @@
 
 import wx
 
-from .utils import make_button
-
 class LogPane(wx.BoxSizer):
 
     def __init__(self, root, parentpanel = None):
@@ -43,6 +41,11 @@ class LogPane(wx.BoxSizer):
         root.commandbox.history = [""]
         root.commandbox.histindex = 1
         lbrs.Add(root.commandbox, 1)
-        root.sendbtn = make_button(bottom_panel, "Send", root.sendline, "Send Command to Printer", style = wx.BU_EXACTFIT, container = lbrs)
+        
+        root.sendbtn = wx.Button(bottom_panel, -1, "Send")
+        root.sendbtn.Bind(wx.EVT_BUTTON, root.sendline)
+        root.sendbtn.SetToolTip(wx.ToolTip("Send Command to Printer"))
+        lbrs.Add(root.sendbtn)
+
         bottom_panel.SetSizer(lbrs)
         self.Add(bottom_panel, 0, wx.EXPAND)

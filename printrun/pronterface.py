@@ -1246,7 +1246,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
 
     def on_startprint(self):
         wx.CallAfter(self.pausebtn.SetLabel, "&Pause")
-        wx.CallAfter(self.pausebtn.Enable)
+        wx.CallAfter(self.pausebtn.Enable, True)
         wx.CallAfter(self.printbtn.SetLabel, "Restart")
         wx.CallAfter(self.toolbarsizer.Layout)
 
@@ -1601,13 +1601,13 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             self.log(message)
             self.statusbar.SetStatusText(message)
             self.savebtn.Enable(True)
-        self.loadbtn.SetLabel("Load File")
+        self.loadbtn.SetLabel("Load file")
         self.printbtn.SetLabel("&Print")
         self.pausebtn.SetLabel("&Pause")
-        self.pausebtn.Disable()
+        self.pausebtn.Enable(False)
         self.recoverbtn.Disable()
         if not failed and self.p.online:
-            self.printbtn.Enable()
+            self.printbtn.Enable(True)
         self.toolbarsizer.Layout()
         self.viz_last_layer = None
 
@@ -1705,7 +1705,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             if self.settings.display_progress_on_printer:
                 printer_progress_string = "M117 Finished Print"
                 self.p.send_now(printer_progress_string)
-            wx.CallAfter(self.pausebtn.Disable)
+            wx.CallAfter(self.pausebtn.Enable, False)
             wx.CallAfter(self.printbtn.SetLabel, "&Print")
             wx.CallAfter(self.toolbarsizer.Layout)
 
@@ -1726,7 +1726,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.gui_set_connected()
 
         if self.filename:
-            self.printbtn.Enable()
+            self.printbtn.Enable(True)
 
         wx.CallAfter(self.toolbarsizer.Layout)
 

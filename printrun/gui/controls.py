@@ -19,8 +19,6 @@ from .xybuttons import XYButtons
 from .zbuttons import ZButtons
 from wx.lib.agw.floatspin import FloatSpin
 
-from .utils import make_button, make_custom_button
-
 class XYZControlsSizer(wx.GridBagSizer):
 
     def __init__(self, root, parentpanel = None):
@@ -89,7 +87,9 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
     def speedslider_set(event):
         root.do_setspeed()
         root.speed_setbtn.SetBackgroundColour(wx.NullColour)
-    root.speed_setbtn = make_button(speedpanel, "Set", speedslider_set, "Set print speed factor", size = (38, -1), style = wx.BU_EXACTFIT)
+    root.speed_setbtn = wx.Button(speedpanel, -1, "Set", style = wx.BU_EXACTFIT, size = (38, -1))
+    root.speed_setbtn.Bind(wx.EVT_BUTTON, speedslider_set)
+    root.speed_setbtn.SetToolTip(wx.ToolTip("Set print speed factor"))
     root.printerControls.append(root.speed_setbtn)
     speedsizer.Add(root.speed_setbtn, flag = wx.ALIGN_CENTER)
     speedpanel.SetSizer(speedsizer)
@@ -147,8 +147,16 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
 
         for key in ["extrude", "reverse"]:
             desc = root.cpbuttons[key]
-            btn = make_custom_button(root, ebuttonspanel, desc,
-                                     style = wx.BU_EXACTFIT)
+            btn = wx.Button(ebuttonspanel, -1, desc.label, style = wx.BU_EXACTFIT)
+            btn.Bind(wx.EVT_BUTTON, root.process_button,)
+            btn.SetToolTip(wx.ToolTip(desc.tooltip))
+
+            btn.SetBackgroundColour(desc.background)
+            btn.SetForegroundColour("black")
+            btn.properties = desc
+            root.btndict[desc.command] = btn
+            root.printerControls.append(btn)
+
             ebuttonssizer.Add(btn, 1, flag = wx.EXPAND)
 
         ebuttonssizer.AddSpacer(10)
@@ -204,7 +212,15 @@ class ControlsSizer(wx.GridBagSizer):
             if not standalone_mode and key in ["extrude", "reverse"]:
                 continue
             panel = lltspanel if key == "motorsoff" else parentpanel
-            btn = make_custom_button(root, panel, desc)
+            btn = wx.Button(panel, -1, desc.label)
+            btn.Bind(wx.EVT_BUTTON, root.process_button,)
+            btn.SetToolTip(wx.ToolTip(desc.tooltip))
+            btn.SetBackgroundColour(desc.background)
+            btn.SetForegroundColour("black")
+            btn.properties = desc
+            root.btndict[desc.command] = btn
+            root.printerControls.append(btn)
+
             if key == "motorsoff":
                 llts.Add(btn)
             elif not standalone_mode:
