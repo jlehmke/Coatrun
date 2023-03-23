@@ -469,9 +469,9 @@ class StlPlaterPanel(PlaterPanel):
             try:
                 self.autoplate_simarrange()
             except Exception as e:
-                logging.warning(_("Failed to use simarrange for plating, "
-                                  "falling back to the standard method. "
-                                  "The error was: ") + e)
+                logging.warning("Failed to use simarrange for plating, " +
+                                  "falling back to the standard method. " +
+                                  "The error was: " + e)
                 super(StlPlaterPanel, self).autoplate()
         else:
             super(StlPlaterPanel, self).autoplate()

@@ -15,7 +15,7 @@
 
 import wx
 
-from .utils import make_autosize_button
+from .utils import make_autosize_button,make_button
 
 def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
     if not parentpanel: parentpanel = root.panel
@@ -67,8 +67,8 @@ def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
 
     self.AddStretchSpacer(prop = 1)
 
-    root.loadbtn = make_autosize_button(parentpanel, "Load file", root.loadfile, "Load a 3D model file", self)
-    root.sdbtn = make_autosize_button(parentpanel, "SD", root.sdmenu, "SD Card Printing", self)
+    root.loadbtn = make_button(parentpanel, "Load file", root.loadfile, "Load a 3D model file", self, (80,-1))
+    root.sdbtn = make_button(parentpanel, "SD", root.sdmenu, "SD Card Printing", self, (80,-1))
     root.sdbtn.Reparent(parentpanel)
     root.printerControls.append(root.sdbtn)
     if not hasattr(root, "printbtn"):

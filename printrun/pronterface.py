@@ -150,7 +150,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.cpbuttons = {
             "motorsoff": SpecialButton("Motors off", ("M84"), (250, 250, 250), "Switch all motors off"),
             "extrude": SpecialButton("Extrude", ("pront_extrude"), (225, 200, 200), "Advance extruder by set length"),
-            "reverse": SpecialButton("Reverse", ("pront_reverse"), (225, 200, 200), "Reverse extruder by set length"),
+            "reverse": SpecialButton("Retract", ("pront_retract"), (225, 200, 200), "Reverse extruder by set length"),
         }
         self.custombuttons = []
         self.btndict = {}
@@ -406,12 +406,14 @@ class PronterWindow(MainWindow, pronsole.pronsole):
     #  Main interface actions
     #  --------------------------------------------------------------
 
+    def do_pront_retract(self, l = ""):
+        self.do_retract()
+
     def do_pront_extrude(self, l = ""):
-        if self.p.printing and not self.paused:
-            self.log("Please pause or stop print before extruding.")
-            return
-        feed = self.settings.e_feedrate
-        self.do_extrude_final(self.edist.GetValue(), feed)
+        self.do_recover()
+        if self.etime.GetValue() > 0:
+            self.do_dwell_ms(self.etime.GetValue())
+            self.do_retract()
 
     def do_pront_reverse(self, l = ""):
         if self.p.printing and not self.paused:
@@ -582,7 +584,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.p.send_now('M114')
 
     def clamped_move_message(self):
-        self.log(_("Manual move outside of the build volume prevented (see the \"Clamp manual moves\" option)."))
+        self.log("Manual move outside of the build volume prevented (see the \"Clamp manual moves\" option).")
 
     def moveXY(self, x, y):
         # When user clicks on the XY control, the Z control no longer gets spacebar/repeat signals
@@ -786,8 +788,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         info.SetName('Printrun')
         info.SetVersion(printcore.__version__)
 
-        description = _("Printrun is a pure Python 3D printing"
-                        " (and other types of CNC) host software.")
+        description = "Printrun is a pure Python 3D printing (and other types of CNC) host software."
 
         description += "\n\n" + \
                        "%.02fmm of filament have been extruded during prints" \
@@ -968,7 +969,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.settings._add(HiddenSetting("last_file_filter", 0))
         self.settings._add(HiddenSetting("last_temperature", 0.0))
         self.settings._add(StaticTextSetting("separator_2d_viewer", "2D viewer options", "", group = "Viewer"))
-        self.settings._add(FloatSpinSetting("preview_extrusion_width", 0.5, 0, 10, "Preview extrusion width", "Width of Extrusion in Preview", "Viewer", increment = 0.1), self.update_gviz_params)
+        self.settings._add(FloatSpinSetting("preview_extrusion_width", 1.0, 0, 10, "Preview extrusion width", "Width of Extrusion in Preview", "Viewer", increment = 0.1), self.update_gviz_params)
         self.settings._add(SpinSetting("preview_grid_step1", 10., 0, 200, "Fine grid spacing", "Fine Grid Spacing", "Viewer"), self.update_gviz_params)
         self.settings._add(SpinSetting("preview_grid_step2", 50., 0, 200, "Coarse grid spacing", "Coarse Grid Spacing", "Viewer"), self.update_gviz_params)
         self.settings._add(ColorSetting("bgcolor", self._preferred_bgcolour_hex(), "Background color", "Pronterface background color", "Colors", isRGBA=False), self.reload_ui)
@@ -1381,11 +1382,13 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             output_filename = self.model_to_gcode_filename(self.filename)
             pararray = prepare_command(self.settings.slicecommandpath+self.settings.slicecommand,
                                        {"$s": self.filename, "$o": output_filename})
+            """
             if self.settings.slic3rintegration:
                 for cat, config in self.slic3r_configs.items():
                     if config:
                         fpath = os.path.join(self.slic3r_configpath, cat, config)
                         pararray += ["--load", fpath]
+            """
             self.log("Running " + " ".join(pararray))
             self.slicep = subprocess.Popen(pararray, stdin=subprocess.DEVNULL, stderr = subprocess.STDOUT, stdout = subprocess.PIPE, universal_newlines = True)
             while True:
@@ -1426,6 +1429,51 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         threading.Thread(target = self.slice_func).start()
         threading.Thread(target = self.slice_monitor).start()
 
+    def extrude_func(self):
+        try:
+            import tempfile
+            scad_file = tempfile.NamedTemporaryFile(suffix=".scad", delete=False)
+            print(scad_file.name)
+            scad = self.settings.scadscript.replace("$s", self.filename)
+            scad_file.write(scad.encode())
+            scad_file.close()
+            
+            wx.CallAfter(self.statusbar.SetStatusText, "Generating 3D model using OpenSCAD...")
+
+            scad_cmd = "openscad"
+            output_filename = scad_file.name.replace(".scad",".stl")
+            pararray = prepare_command(self.settings.scadcommandpath+self.settings.scadcommand,
+                                                {"$s": scad_file.name, "$o": output_filename})
+
+            self.log("Running " + " ".join(pararray))
+            self.scadp = subprocess.Popen(pararray, stdin=subprocess.DEVNULL, stderr = subprocess.STDOUT, stdout = subprocess.PIPE, universal_newlines = True)
+            while True:
+                o = self.scadp.stdout.read(1)
+                if o == '' and self.scadp.poll() is not None: break
+                sys.stdout.write(o)
+            self.scadp.wait()
+            
+            #os.unlink(scad_file.name)
+
+        except:
+            self.logError("Failed to execute OpenSCAD: "
+                          + "\n" + traceback.format_exc())
+
+        self.slice(output_filename)
+            
+        self.loadbtn.SetLabel, "Load file"
+
+        
+    def extrude(self, filename):
+        wx.CallAfter(self.loadbtn.SetLabel, "Cancel")
+        wx.CallAfter(self.toolbarsizer.Layout)
+        self.log("Extruding " + filename)
+        self.cout = StringIO.StringIO()
+        self.filename = filename
+        self.stopsf = 0
+        self.slicing = True
+        threading.Thread(target = self.extrude_func).start()
+
     def cmdline_filename_callback(self, filename):
         # Do nothing when processing a filename from command line, as we'll
         # handle it when everything has been prepared
@@ -1456,7 +1504,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         dlg = None
         if filename is None:
             dlg = wx.FileDialog(self, "Open file to print", basedir, style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-            dlg.SetWildcard("OBJ, STL, and GCODE files (*.gcode;*.gco;*.g;*.stl;*.STL;*.obj;*.OBJ)|*.gcode;*.gco;*.g;*.stl;*.STL;*.obj;*.OBJ|GCODE files (*.gcode;*.gco;*.g)|*.gcode;*.gco;*.g|OBJ, STL files (*.stl;*.STL;*.obj;*.OBJ)|*.stl;*.STL;*.obj;*.OBJ|All Files (*.*)|*.*")
+            dlg.SetWildcard("DXF files (*.dxf;*.DXF)|*.dxf;*.DXF|OBJ, STL, and GCODE files (*.gcode;*.gco;*.g;*.stl;*.STL;*.obj;*.OBJ)|*.gcode;*.gco;*.g;*.stl;*.STL;*.obj;*.OBJ|GCODE files (*.gcode;*.gco;*.g)|*.gcode;*.gco;*.g|OBJ, STL files (*.stl;*.STL;*.obj;*.OBJ)|*.stl;*.STL;*.obj;*.OBJ|All Files (*.*)|*.*")
             try:
               dlg.SetFilterIndex(self.settings.last_file_filter)
             except:
@@ -1493,6 +1541,8 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
                               "\n" + traceback.format_exc())
             if name.lower().endswith(".stl") or name.lower().endswith(".obj"):
                 self.slice(name)
+            elif name.lower().endswith(".dxf"):
+                self.extrude(name)
             else:
                 self.load_gcode_async(name)
         else:
@@ -2317,5 +2367,5 @@ class PronterApp(wx.App):
     def __init__(self, *args, **kwargs):
         super(PronterApp, self).__init__(*args, **kwargs)
         self.SetAppName("Pronterface")
-        self.mainwindow = PronterWindow(self)
+        self.mainwindow = PronterWindow(self, size=(1280,1024))
         self.mainwindow.Show()

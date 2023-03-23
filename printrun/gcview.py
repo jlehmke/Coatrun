@@ -32,13 +32,6 @@ from .gviz import GvizBaseFrame
 
 from .utils import imagefile, get_home_pos
 
-
-def create_model(light):
-    if light:
-        return actors.GcodeModelLight()
-    else:
-        return actors.GcodeModel()
-
 def gcode_dims(g):
     return ((g.xmin, g.xmax, g.width),
             (g.ymin, g.ymax, g.depth),
@@ -339,8 +332,7 @@ class GcodeViewLoader:
     path_halfheight = 0.15
 
     def addfile_perlayer(self, gcode = None, showall = False):
-        self.model = create_model(self.root.settings.light3d
-                                  if self.root else False)
+        self.model = actors.GcodeModel()
         if isinstance(self.model, actors.GcodeModel):
             self.model.set_path_size(self.path_halfwidth, self.path_halfheight)
         self.objects[-1].model = self.model

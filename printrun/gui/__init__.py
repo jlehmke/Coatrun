@@ -217,6 +217,9 @@ class MainWindow(wx.Frame):
         self.SetMinSize(self.ClientToWindowSize(minsize))  # client to window
         self.Fit()
 
+    def update_vision(self,event):
+        self.vid_pane.update()
+
     def createGui(self, compact = False, mini = False):
         self.mainsizer = wx.BoxSizer(wx.VERTICAL)
         self.lowersizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -235,6 +238,17 @@ class MainWindow(wx.Frame):
         left_sizer = wx.BoxSizer(wx.VERTICAL)
         left_sizer.Add(controls_panel, 1, wx.EXPAND)
         left_pane.set_sizer(left_sizer)
+
+        # Video panel
+        from .vision import VisionPane
+        vidpanel = self.newPanel(left_real_panel)
+        self.vid_pane = VisionPane(self, vidpanel)
+        #vidpanel.SetSizer(vid_pane)
+        left_sizer.Add(vidpanel, 1, wx.EXPAND)
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.vid_pane.update, self.timer)
+        self.timer.Start(100)
+
         self.lowersizer.Add(leftpanel, 0, wx.EXPAND)
         if compact:
             vizpanel = self.newPanel(lowerpanel)

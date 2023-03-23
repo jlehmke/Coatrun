@@ -338,8 +338,19 @@ class Settings:
         defaultslicerpath = ""
         self._add(StringSetting("slicecommandpath", defaultslicerpath, "Path to slicer", "Path to slicer", "External"))
         slicer = 'slic3r-console' if sys.platform == 'win32' else 'slic3r'
-        self._add(StringSetting("slicecommand", slicer + ' $s --output $o', "Slice command", "Slice command", "External"))
+        self._add(StringSetting("slicecommand", slicer + ' $s --output $o \
+          --skirts 0 --perimeters 1 --solid-layers 0 --nozzle-diameter 1 --infill-overlap 10% --first-layer-temperature 0 --cooling 0 --temperature 0 --avoid-crossing-perimeters --external-perimeters-first --seam-position "nearest" --seam-position "no" \
+          --fill-density 100% --fill-pattern "rectilinear" --layer-height 0.1 --fill-angle 45 --only-retract-when-crossing-perimeters --first-layer-height 100% --gcode-flavor "marlin" --use-relative-e-distances --use-volumetric-e --use-firmware-retraction \
+          --start-gcode "" --end-gcode "" --travel-speed 200 --perimeter-speed 50 --first-layer-speed 50 --infill-speed 50 --gap-fill-speed 50 --small-perimeter-speed 100% --external-perimeter-speed 100% --solid-infill-speed 100% --top-solid-infill-speed 100% \
+          --extrusion-width 2  \
+          ', "Slice command", "Slice command", "External"))
         self._add(StringSetting("sliceoptscommand", "slic3r", "Slicer options command", "Slice settings command", "External"))
+        defaultscadrpath =""
+        self._add(StringSetting("scadcommandpath", defaultscadrpath, "Path to slicer", "Path to slicer", "External"))
+        scad = 'openscad'
+        self._add(StringSetting("scadcommand", scad + ' -o $o $s', "OpenScad command", "OpenScad command", "External"))
+        self._add(StringSetting("scadoptscommand", "openscad", "OpenScad options command", "OpenScad settings command", "External"))
+        self._add(StringSetting("scadscript", 'linear_extrude(0.15) offset(-2) import("$s");', "OpenScad script", "OpenScad script", "External"))
         self._add(StringSetting("start_command", "", "Start command", "Executable to run when the print is started", "External"))
         self._add(StringSetting("final_command", "", "Final command", "Executable to run when the print is finished", "External"))
         self._add(StringSetting("error_command", "", "Error command", "Executable to run when an error occurs", "External"))
@@ -353,7 +364,7 @@ class Settings:
         self._add(HiddenSetting("project_x", 1024))
         self._add(HiddenSetting("project_y", 768))
         self._add(HiddenSetting("project_projected_x", 150.0))
-        self._add(HiddenSetting("project_direction", "Top Down"))
+        self._add(HiddenSetting("project_direction", "Top Down "))
         self._add(HiddenSetting("project_overshoot", 3.0))
         self._add(HiddenSetting("project_z_axis_rate", 200))
         self._add(HiddenSetting("project_layer", 0.1))
@@ -412,7 +423,7 @@ class Settings:
             if cb is not None:
                 cb(key, value)
         except:
-            logging.warning((_("Failed to run callback after setting \"%s\":") % key) +
+            logging.warning(("Failed to run callback after setting \"%s\":" % key) +
                             "\n" + traceback.format_exc())
         return value
 

@@ -51,19 +51,15 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
         "reverse": (1, 3),
     }
 
-    if mini_mode:
-        pos_mapping["etool_label"] = (0, 0)
-        pos_mapping["etool_val"] = (0, 1)
-        pos_mapping["edist_label"] = (0, 2)
-        pos_mapping["edist_val"] = (0, 3)
-        pos_mapping["edist_unit"] = (0, 4)
-    else:
-        pos_mapping["edist_label"] = (0, 0)
-        pos_mapping["edist_val"] = (1, 0)
-        pos_mapping["edist_unit"] = (1, 1)
-        pos_mapping["efeed_label"] = (0, 2)
-        pos_mapping["efeed_val"] = (1, 2)
-        pos_mapping["efeed_unit"] = (1, 3)
+    pos_mapping["edist_label"] = (0, 0)
+    pos_mapping["edist_val"] = (1, 0)
+    pos_mapping["edist_unit"] = (1, 1)
+    pos_mapping["efeed_label"] = (0, 2)
+    pos_mapping["efeed_val"] = (1, 2)
+    pos_mapping["efeed_unit"] = (1, 3)
+    pos_mapping["etime_label"] = (0, 4)
+    pos_mapping["etime_val"] = (1, 5)
+    pos_mapping["etime_unit"] = (1, 6)
 
     def add(name, widget, *args, **kwargs):
         kwargs["pos"] = pos_mapping[name]
@@ -113,37 +109,6 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
 
     # Extrusion controls #
 
-    # Extrusion settings
-    esettingspanel = root.newPanel(parentpanel)
-    esettingssizer = wx.GridBagSizer()
-    esettingssizer.SetEmptyCellSize((0, 0))
-    root.edist = wx.SpinCtrlDouble(esettingspanel, -1, initial = root.settings.last_extrusion, min = 0, max = 1000, size = (135, -1))
-    root.edist.SetDigits(1)
-    root.edist.Bind(wx.EVT_SPINCTRLDOUBLE, root.setfeeds)
-    root.edist.SetBackgroundColour((225, 200, 200))
-    root.edist.SetForegroundColour("black")
-    root.edist.Bind(wx.EVT_TEXT, root.setfeeds)
-    add("edist_label", wx.StaticText(esettingspanel, -1, "Length:"), container = esettingssizer, flag = wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_LEFT | wx.RIGHT | wx.LEFT, border = 5)
-    add("edist_val", root.edist, container = esettingssizer, flag = wx.ALIGN_CENTER | wx.RIGHT, border = 5)
-    unit_label = "mm" if mini_mode else "mm @"
-    add("edist_unit", wx.StaticText(esettingspanel, -1, unit_label), container = esettingssizer, flag = wx.ALIGN_CENTER | wx.RIGHT, border = 5)
-    root.edist.SetToolTip(wx.ToolTip("Amount to Extrude or Retract (mm)"))
-    if not mini_mode:
-        root.efeedc = wx.SpinCtrlDouble(esettingspanel, -1, initial = root.settings.e_feedrate, min = 0, max = 50000, size = (145, -1))
-        root.efeedc.SetDigits(1)
-        root.efeedc.Bind(wx.EVT_SPINCTRLDOUBLE, root.setfeeds)
-        root.efeedc.SetToolTip(wx.ToolTip("Extrude / Retract speed (mm/min)"))
-        root.efeedc.SetBackgroundColour((225, 200, 200))
-        root.efeedc.SetForegroundColour("black")
-        root.efeedc.Bind(wx.EVT_TEXT, root.setfeeds)
-        add("efeed_val", root.efeedc, container = esettingssizer, flag = wx.ALIGN_CENTER | wx.RIGHT, border = 5)
-        add("efeed_label", wx.StaticText(esettingspanel, -1, "Speed:"), container = esettingssizer, flag = wx.ALIGN_LEFT)
-        add("efeed_unit", wx.StaticText(esettingspanel, -1, "mm/\nmin"), container = esettingssizer, flag = wx.ALIGN_CENTER)
-    else:
-        root.efeedc = None
-    esettingspanel.SetSizer(esettingssizer)
-    add("esettings", esettingspanel, flag = wx.ALIGN_LEFT)
-
     if not standalone_mode:
         ebuttonspanel = root.newPanel(parentpanel)
         ebuttonssizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -185,6 +150,25 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
             btn = make_custom_button(root, ebuttonspanel, desc,
                                      style = wx.BU_EXACTFIT)
             ebuttonssizer.Add(btn, 1, flag = wx.EXPAND)
+
+        ebuttonssizer.AddSpacer(10)
+        label = wx.StaticText(ebuttonspanel, -1, "Time:")
+        ebuttonssizer.Add(label, flag = wx.ALIGN_CENTER)
+        ebuttonssizer.AddSpacer(2)
+
+        root.etime = wx.SpinCtrlDouble(ebuttonspanel, -1, initial = 1000, min = 0, max = 10000)
+        root.etime.SetDigits(0)
+        root.etime.SetIncrement(100)
+        root.etime.Bind(wx.EVT_SPINCTRLDOUBLE, root.setfeeds)
+        root.etime.SetToolTip(wx.ToolTip("Extrude time (s)"))
+        #root.etime.SetBackgroundColour((225, 200, 200))
+        root.etime.SetForegroundColour("black")
+        root.etime.Bind(wx.EVT_TEXT, root.setfeeds)
+        ebuttonssizer.Add(root.etime, flag = wx.ALIGN_CENTER | wx.RIGHT, border = 5)
+      
+        label = wx.StaticText(ebuttonspanel, -1, "ms")
+        ebuttonssizer.Add(label, flag = wx.ALIGN_CENTER)
+
 
         ebuttonspanel.SetSizer(ebuttonssizer)
         add("ebuttons", ebuttonspanel, flag = wx.EXPAND)

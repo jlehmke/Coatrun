@@ -184,7 +184,7 @@ class pronsole(cmd.Cmd):
         cmd.Cmd.postloop(self)
 
     def preloop(self):
-        self.log(_("Welcome to the printer console! Type \"help\" for a list of available commands."))
+        self.log("Welcome to the printer console! Type \"help\" for a list of available commands.")
         self.prompt = self.promptf()
         cmd.Cmd.preloop(self)
 
@@ -395,8 +395,8 @@ class pronsole(cmd.Cmd):
             self.p.send_now("M140 S0.0")
         self.log("Disconnecting from printer...")
         if self.p.printing and l != "force":
-            self.log(_("Are you sure you want to exit while printing?\n\
-(this will terminate the print)."))
+            self.log("Are you sure you want to exit while printing?\n\
+(this will terminate the print).")
             if not self.confirm():
                 return
         self.log("Exiting program. Goodbye!")
@@ -1458,6 +1458,15 @@ class pronsole(cmd.Cmd):
         self.p.send_now("G1 E" + str(length) + " F" + str(feed))
         self.p.send_now("G90")
 
+    def do_retract(self):
+        self.p.send_now("G10")
+
+    def do_recover(self):
+        self.p.send_now("G11")
+
+    def do_dwell_ms(self, time):
+        self.p.send_now("G4 P" + str(int(time))) # ms
+
     def help_extrude(self):
         self.log("Extrudes a length of filament, 5mm by default, or the number of mm given as a parameter")
         self.log("extrude - extrudes 5mm of filament at 300mm/min (5mm/s)")
@@ -1552,7 +1561,7 @@ class pronsole(cmd.Cmd):
         command = command.lstrip()
         if command.startswith(";@"):
             command = command[2:]
-            self.log(_("G-Code calling host command \"%s\"") % command)
+            self.log("G-Code calling host command \"%s\"" % command)
             self.onecmd(command)
 
     def do_run_script(self, l):
