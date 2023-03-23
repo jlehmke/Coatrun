@@ -34,30 +34,18 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
     standalone_mode = extra_buttons is not None
 
     pos_mapping = {
-        "ebuttons": (1 + 2 + 0, 0),
-        "esettings": (1 + 2 + 1, 0),
-        "speedcontrol": (1 + 2 + 2, 0),
+        "ebuttons": (3, 0),
+        "speedcontrol": (5, 0),
         "extrude": (3, 0),
         "reverse": (3, 2),
     }
 
     span_mapping = {
         "ebuttons": (1, 6),
-        "esettings": (1, 6),
         "speedcontrol": (1, 6),
         "extrude": (1, 2),
         "reverse": (1, 3),
     }
-
-    pos_mapping["edist_label"] = (0, 0)
-    pos_mapping["edist_val"] = (1, 0)
-    pos_mapping["edist_unit"] = (1, 1)
-    pos_mapping["efeed_label"] = (0, 2)
-    pos_mapping["efeed_val"] = (1, 2)
-    pos_mapping["efeed_unit"] = (1, 3)
-    pos_mapping["etime_label"] = (0, 4)
-    pos_mapping["etime_val"] = (1, 5)
-    pos_mapping["etime_unit"] = (1, 6)
 
     def add(name, widget, *args, **kwargs):
         kwargs["pos"] = pos_mapping[name]

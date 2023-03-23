@@ -1385,7 +1385,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         try:
             output_filename = self.model_to_gcode_filename(self.filename)
             pararray = prepare_command(self.settings.slicecommandpath+self.settings.slicecommand,
-                                       {"$s": self.filename, "$o": output_filename})
+                                       {"$s": self.filename, "$o": output_filename, "$a":str(int(45+self.pcba.GetValue()))})
             """
             if self.settings.slic3rintegration:
                 for cat, config in self.slic3r_configs.items():
@@ -1438,7 +1438,13 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             import tempfile
             scad_file = tempfile.NamedTemporaryFile(suffix=".scad", delete=False)
             print(scad_file.name)
-            scad = self.settings.scadscript.replace("$s", self.filename)
+            scad = self.settings.scadscript
+            scad = scad.replace("$s", self.filename_dxf)
+            scad = scad.replace("$x", str(self.pcbx.GetValue()))
+            scad = scad.replace("$y", str(self.pcby.GetValue()))
+            #scad = scad.replace("$z", str(self.pcbz.GetValue()))
+            scad = scad.replace("$a", str(self.pcba.GetValue()))
+            print(scad)
             scad_file.write(scad.encode())
             scad_file.close()
             
@@ -1466,17 +1472,19 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.slice(output_filename)
             
         self.loadbtn.SetLabel, "Load file"
-
         
     def extrude(self, filename):
         wx.CallAfter(self.loadbtn.SetLabel, "Cancel")
         wx.CallAfter(self.toolbarsizer.Layout)
         self.log("Extruding " + filename)
         self.cout = StringIO.StringIO()
-        self.filename = filename
+        self.filename_dxf = filename
         self.stopsf = 0
-        self.slicing = True
+        #self.slicing = True
         threading.Thread(target = self.extrude_func).start()
+
+    def extrude_update(self, event):
+        self.extrude(self.filename_dxf)
 
     def cmdline_filename_callback(self, filename):
         # Do nothing when processing a filename from command line, as we'll

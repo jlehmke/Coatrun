@@ -243,7 +243,7 @@ class MainWindow(wx.Frame):
         from .vision import VisionPane
         vidpanel = self.newPanel(left_real_panel)
         self.vid_pane = VisionPane(self, vidpanel)
-        #vidpanel.SetSizer(vid_pane)
+        vidpanel.SetSizer(self.vid_pane)
         left_sizer.Add(vidpanel, 1, wx.EXPAND)
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.vid_pane.update, self.timer)
@@ -268,6 +268,14 @@ class MainWindow(wx.Frame):
                                                 self.settings.last_sash_position)
             self.splitterwindow.shrinked = False
         viz_pane = VizPane(self, vizpanel)
+
+        # PCB settings
+        from .pcb import PcbPane
+        pcbpanel = self.newPanel(vizpanel)
+        pcb_pane = PcbPane(self, pcbpanel)
+        pcbpanel.SetSizer(pcb_pane)
+        viz_pane.Add(pcbpanel, 0, flag = wx.ALIGN_LEFT)
+
         # Custom buttons
         self.cbuttonssizer = wx.WrapSizer(wx.HORIZONTAL)
         self.centerpanel = self.newPanel(vizpanel)
