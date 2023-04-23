@@ -1,17 +1,17 @@
-# This file is part of the Printrun suite.
+# This file is part of the Coatrun suite.
 #
-# Printrun is free software: you can redistribute it and/or modify
+# Coatrun is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Printrun is distributed in the hope that it will be useful,
+# Coatrun is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Printrun.  If not, see <http://www.gnu.org/licenses/>.
+# along with Coatrun.  If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
 import glob
@@ -169,10 +169,10 @@ class pronsole(cmd.Cmd):
                            "macro": "%(bold)s..>%(normal)s ",
                            "online": "%(bold)s%(green)s%(port)s%(white)s %(extruder_temp_fancy)s%(progress_fancy)s>%(normal)s "}
         self.current_tool = 0   # Keep track of the extruder being used
-        self.cache_dir = os.path.join(user_cache_dir("Printrun"))
+        self.cache_dir = os.path.join(user_cache_dir("Coatrun"))
         self.history_file = os.path.join(self.cache_dir,"history")
-        self.config_dir = os.path.join(user_config_dir("Printrun"))
-        self.data_dir = os.path.join(user_data_dir("Printrun"))
+        self.config_dir = os.path.join(user_config_dir("Coatrun"))
+        self.data_dir = os.path.join(user_data_dir("Coatrun"))
         self.lineignorepattern=re.compile("ok ?\d*$|.*busy: ?processing|.*busy: ?heating|.*Active Extruder: ?\d*$")
 
     #  --------------------------------------------------------------
@@ -743,7 +743,7 @@ class pronsole(cmd.Cmd):
         self.do_load(filename)
 
     def parse_cmdline(self, args):
-        parser = argparse.ArgumentParser(description = 'Printrun 3D printer interface')
+        parser = argparse.ArgumentParser(description = 'Coatrun 3D printer interface')
         self.add_cmdline_arguments(parser)
         args = [arg for arg in args if not arg.startswith("-psn")]
         args = parser.parse_args(args = args)

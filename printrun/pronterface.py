@@ -1,17 +1,17 @@
-# This file is part of the Printrun suite.
+# This file is part of the Coatrun suite.
 #
-# Printrun is free software: you can redistribute it and/or modify
+# Coatrun is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Printrun is distributed in the hope that it will be useful,
+# Coatrun is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Printrun.  If not, see <http://www.gnu.org/licenses/>.
+# along with Coatrun.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import platform
@@ -171,7 +171,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         # -- Okai, it seems it breaks things like update_gviz_params ><
         os.putenv("UBUNTU_MENUPROXY", "0")
         size = (self.settings.last_window_width, self.settings.last_window_height)
-        MainWindow.__init__(self, None, title = "Pronterface", size = size)
+        MainWindow.__init__(self, None, title = "Coaterface", size = size)
         if self.settings.last_window_maximized:
             self.Maximize()
         self.SetIcon(wx.Icon(iconfile("images/icon.png"), wx.BITMAP_TYPE_PNG))
@@ -683,7 +683,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
 
         m = wx.Menu()
         self.Bind(wx.EVT_MENU, self.about,
-                  m.Append(-1, "&About Printrun", "Show about dialog"))
+                  m.Append(-1, "&About Coatrun", "Show about dialog"))
         self.menustrip.Append(m, "&Help")
 
     def about(self, event):
@@ -692,33 +692,34 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         info = wx.adv.AboutDialogInfo()
 
         info.SetIcon(wx.Icon(iconfile("images/icon.png"), wx.BITMAP_TYPE_PNG))
-        info.SetName('Printrun')
+        info.SetName('Coatrun')
         info.SetVersion(printcore.__version__)
 
-        description = "Printrun is a pure Python 3D printing (and other types of CNC) host software."
+        description = "Coatrun is a pure Python dispenser host software based on Printrun."
 
         description += "\n\n" + \
                        "%.02fmm of filament have been extruded during prints" \
                        % self.settings.total_filament_used
 
         info.SetDescription(description)
-        info.SetCopyright('(C) 2011 - 2020')
-        info.SetWebSite('https://github.com/kliment/Printrun')
+        info.SetCopyright('(C) 2011 - 2023')
+        info.SetWebSite('https://github.com/jlehmke/Coatrun')
 
         licence = """\
-Printrun is free software: you can redistribute it and/or modify it under the
+Coatrun is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Printrun is distributed in the hope that it will be useful, but WITHOUT ANY
+Coatrun is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
-Printrun. If not, see <http://www.gnu.org/licenses/>."""
+Coatrun. If not, see <http://www.gnu.org/licenses/>."""
 
         info.SetLicence(licence)
+        info.AddDeveloper('Jonas Lehmke (code)')
         info.AddDeveloper('Kliment Yanev @kliment (code)')
         info.AddDeveloper('Guillaume Seguin @iXce (code)')
         info.AddDeveloper('@DivingDuck (code)')
@@ -845,7 +846,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     def _add_settings(self, size):
         self.settings._add(BooleanSetting("clamp_jogging", False, "Clamp manual moves", "Prevent manual moves from leaving the specified build dimensions", "Printer"))
         self.settings._add(BooleanSetting("display_progress_on_printer", False, "Display progress on printer", "Show progress on printers display (sent via M117, might not be supported by all printers)", "Printer"))
-        self.settings._add(SpinSetting("printer_progress_update_interval", 10., 0, 120, "Printer progress update interval", "Interval in which pronterface sends the progress to the printer if enabled, in seconds", "Printer"))
+        self.settings._add(SpinSetting("printer_progress_update_interval", 10., 0, 120, "Printer progress update interval", "Interval in which coaterface sends the progress to the printer if enabled, in seconds", "Printer"))
         self.settings._add(BooleanSetting("cutting_as_extrusion", True, "Display cutting moves", "Show moves where spindle is active as printing moves", "Printer"))
         self.settings._add(ComboSetting("uimode", "Standard", ["Standard", "Compact", ], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
         self.settings._add(HiddenSetting("last_window_width", size[0]))
@@ -859,7 +860,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.settings._add(SpinSetting("preview_grid_step1", 10., 0, 200, "Fine grid spacing", "Fine Grid Spacing", "UI"), self.update_gviz_params)
         self.settings._add(SpinSetting("preview_grid_step2", 50., 0, 200, "Coarse grid spacing", "Coarse Grid Spacing", "UI"), self.update_gviz_params)
         self.settings._add(HiddenSetting("bgcolor", self._preferred_bgcolour_hex()))
-        #self.settings._add(ColorSetting("bgcolor", self._preferred_bgcolour_hex(), "Background color", "Pronterface background color", "Colors", isRGBA=False), self.reload_ui)
+        #self.settings._add(ColorSetting("bgcolor", self._preferred_bgcolour_hex(), "Background color", "Coaterface background color", "Colors", isRGBA=False), self.reload_ui)
         recentfilessetting = StringSetting("recentfiles", "[]")
         recentfilessetting.hidden = True
         self.settings._add(recentfilessetting, self.update_recent_files)
@@ -1439,7 +1440,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         # Must be called in wx.CallAfter for safety
         self.loading_gcode = False
         if not failed:
-            self.SetTitle("Pronterface - %s" % self.filename)
+            self.SetTitle("Coaterface - %s" % self.filename)
             message = "Loaded %s, %d lines" % (self.filename, len(self.fgcode),)
             self.log(message)
             self.statusbar.SetStatusText(message)
@@ -2112,6 +2113,6 @@ class PronterApp(wx.App):
 
     def __init__(self, *args, **kwargs):
         super(PronterApp, self).__init__(*args, **kwargs)
-        self.SetAppName("Pronterface")
+        self.SetAppName("Coaterface")
         self.mainwindow = PronterWindow(self, size=(1920,1080))
         self.mainwindow.Show()

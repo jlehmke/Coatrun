@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
-# This file is part of the Printrun suite.
+# This file is part of the Coatrun suite.
 #
-# Printrun is free software: you can redistribute it and/or modify
+# Coatrun is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Printrun is distributed in the hope that it will be useful,
+# Coatrun is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Printrun.  If not, see <http://www.gnu.org/licenses/>.
+# along with Coatrun.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     os.environ['GDK_BACKEND'] = 'x11'
 
     usage = "Usage:\n"+\
-            "  pronterface [OPTIONS] [FILE]\n\n"+\
+            "  coaterface [OPTIONS] [FILE]\n\n"+\
             "Options:\n"+\
             "  -h, --help\t\t\tPrint this help message and exit\n"+\
             "  -V, --version\t\t\tPrint program's version number and exit\n"+\

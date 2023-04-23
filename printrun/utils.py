@@ -1,17 +1,17 @@
-# This file is part of the Printrun suite.
+# This file is part of the Coatrun suite.
 #
-# Printrun is free software: you can redistribute it and/or modify
+# Coatrun is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Printrun is distributed in the hope that it will be useful,
+# Coatrun is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Printrun.  If not, see <http://www.gnu.org/licenses/>.
+# along with Coatrun.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import platform
@@ -76,16 +76,16 @@ def iconfile(filename):
 def imagefile(filename):
     '''
     Get the full path to filename by checking standard image locations,
-    those being possible locations of the pronterface "images" directory
+    those being possible locations of the coaterface "images" directory
     (See the lookup_file function's documentation for behavior).
     '''
     my_local_share = os.path.join(
         os.path.dirname(os.path.dirname(sys.argv[0])),
         "share",
-        "pronterface"
+        "coaterface"
     )  # Used by pip install
     image_dirs = [
-        os.path.join(DATADIR, 'pronterface', 'images'),
+        os.path.join(DATADIR, 'coaterface', 'images'),
         os.path.join(os.path.dirname(sys.argv[0]), "images"),
         os.path.join(my_local_share, "images"),
         os.path.join(
@@ -146,7 +146,7 @@ def sharedfile(filename):
     Get the full path to filename by checking in the shared
     directory (See the lookup_file function's documentation for behavior).
     '''
-    shared_pronterface_dir = os.path.join(DATADIR, 'pronterface')
+    shared_pronterface_dir = os.path.join(DATADIR, 'coaterface')
     return lookup_file(filename, [shared_pronterface_dir])
 
 def configfile(filename):
