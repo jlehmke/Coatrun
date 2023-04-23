@@ -114,6 +114,9 @@ An enormous number of people have contributed to Printrun (thank you!):
 # Artists
 - Ahmet Cem TURAN @ahmetcemturan (icons, code)
 - Duane Johnson (code,graphics)
+- Creaticca Ltd. (icon)
+- CoreUI (icon)
+- Jason von Nieda (icons)
     
 # Translators
 - freddii (German translation)
