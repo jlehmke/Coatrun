@@ -135,88 +135,6 @@ class MainWindow(wx.Frame):
         if add_to_list:
             self.panels.append(panel)
 
-    def createTabbedGui(self):
-        self.notesizer = wx.BoxSizer(wx.VERTICAL)
-        self.notebook = wx.Notebook(self.panel)
-        self.notebook.SetBackgroundColour(self.bgcolor)
-        page1panel = self.newPanel(self.notebook)
-        page2panel = self.newPanel(self.notebook)
-        self.mainsizer_page1 = wx.BoxSizer(wx.VERTICAL)
-        page1panel1 = self.newPanel(page1panel)
-        page1panel2 = self.newPanel(page1panel)
-        self.toolbarsizer = MainToolbar(self, page1panel1, use_wrapsizer = True)
-        page1panel1.SetSizer(self.toolbarsizer)
-        self.mainsizer_page1.Add(page1panel1, 0, wx.EXPAND)
-        self.lowersizer = wx.BoxSizer(wx.HORIZONTAL)
-        page1panel2.SetSizer(self.lowersizer)
-        leftsizer = wx.BoxSizer(wx.VERTICAL)
-        controls_sizer = ControlsSizer(self, page1panel2, True)
-        leftsizer.Add(controls_sizer, 1, wx.ALIGN_CENTER)
-        rightsizer = wx.BoxSizer(wx.VERTICAL)
-        extracontrols = wx.GridBagSizer()
-        add_extra_controls(extracontrols, self, page1panel2, controls_sizer.extra_buttons)
-        rightsizer.AddStretchSpacer()
-        rightsizer.Add(extracontrols, 0, wx.ALIGN_CENTER)
-        self.lowersizer.Add(leftsizer, 0, wx.ALIGN_CENTER | wx.RIGHT, border = 10)
-        self.lowersizer.Add(rightsizer, 1, wx.ALIGN_CENTER)
-        self.mainsizer_page1.Add(page1panel2, 1)
-        self.mainsizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.splitterwindow = wx.SplitterWindow(page2panel, style = wx.SP_3D)
-        page2sizer1 = wx.BoxSizer(wx.HORIZONTAL)
-        page2panel1 = self.newPanel(self.splitterwindow)
-        page2sizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        page2panel2 = self.newPanel(self.splitterwindow)
-        vizpane = VizPane(self, page2panel1)
-        page2sizer1.Add(vizpane, 1, wx.EXPAND)
-        page2sizer2.Add(LogPane(self, page2panel2), 1, wx.EXPAND)
-        page2panel1.SetSizer(page2sizer1)
-        page2panel2.SetSizer(page2sizer2)
-        self.splitterwindow.SetMinimumPaneSize(1)
-        self.splitterwindow.SetSashGravity(0.5)
-        self.splitterwindow.SplitVertically(page2panel1, page2panel2,
-                                            self.settings.last_sash_position)
-        self.mainsizer.Add(self.splitterwindow, 1, wx.EXPAND)
-        page1panel.SetSizer(self.mainsizer_page1)
-        page2panel.SetSizer(self.mainsizer)
-        self.notesizer.Add(self.notebook, 1, wx.EXPAND)
-        self.notebook.AddPage(page1panel, "Commands")
-        self.notebook.AddPage(page2panel, "Status")
-        if self.settings.uimode == "Tabbed with platers":
-            from printrun.stlplater import StlPlaterPanel
-            from printrun.gcodeplater import GcodePlaterPanel
-            page3panel = StlPlaterPanel(parent = self.notebook,
-                                        callback = self.platecb,
-                                        build_dimensions = self.build_dimensions_list,
-                                        circular_platform = self.settings.circular_bed,
-                                        simarrange_path = self.settings.simarrange_path,
-                                        antialias_samples = int(self.settings.antialias3dsamples))
-            page4panel = GcodePlaterPanel(parent = self.notebook,
-                                          callback = self.platecb,
-                                          build_dimensions = self.build_dimensions_list,
-                                          circular_platform = self.settings.circular_bed,
-                                          antialias_samples = int(self.settings.antialias3dsamples))
-            self.registerPanel(page3panel)
-            self.registerPanel(page4panel)
-            self.notebook.AddPage(page3panel, "Plater")
-            self.notebook.AddPage(page4panel, "G-Code Plater")
-        self.panel.SetSizer(self.notesizer)
-        self.panel.Bind(wx.EVT_MOUSE_EVENTS, self.editbutton)
-
-        # Custom buttons
-        self.cbuttonssizer = wx.WrapSizer(wx.HORIZONTAL)
-        self.centerpanel = self.newPanel(page1panel2)
-        self.centerpanel.SetSizer(self.cbuttonssizer)
-        rightsizer.Add(self.centerpanel, 0, wx.ALIGN_CENTER)
-        rightsizer.AddStretchSpacer()
-
-        self.panel.SetSizerAndFit(self.notesizer)
-
-        self.cbuttons_reload()
-        minsize = self.lowersizer.GetMinSize()  # lower pane
-        minsize[1] = self.notebook.GetSize()[1]
-        self.SetMinSize(self.ClientToWindowSize(minsize))  # client to window
-        self.Fit()
-
     def update_vision(self,event):
         self.vid_pane.update()
 
@@ -322,7 +240,6 @@ class MainWindow(wx.Frame):
     def gui_set_disconnected(self):
         self.printbtn.Enable(False)
         self.pausebtn.Enable(False)
-        self.recoverbtn.Disable()
         for control in self.printerControls:
             control.Disable()
         self.xyb.disable()

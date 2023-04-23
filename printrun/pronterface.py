@@ -266,17 +266,13 @@ class PronterWindow(MainWindow, pronsole.pronsole):
                 control.GetContainingSizer().Detach(control)
                 control.Reparent(temppanel)
             self.panel.DestroyChildren()
-            self.gwindow.Destroy()
             self.reset_ui()
 
         # Create UI
         self.create_menu()
         self.update_recent_files("recentfiles", self.settings.recentfiles)
         self.splitterwindow = None
-        if self.settings.uimode in ("Tabbed", "Tabbed with platers"):
-            self.createTabbedGui()
-        else:
-            self.createGui(self.settings.uimode == "Compact", False)
+        self.createGui(self.settings.uimode == "Compact", False)
 
         if self.splitterwindow:
             self.splitterwindow.SetSashPosition(self.settings.last_sash_position)
@@ -393,7 +389,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
             self.save_in_rc("set last_extrusion", "set last_extrusion %d" % self.settings.last_extrusion)
         if self.excluder:
             self.excluder.close_window()
-        wx.CallAfter(self.gwindow.Destroy)
         wx.CallAfter(self.Destroy)
 
     @property
@@ -489,32 +484,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         else:
             e.Skip()
 
-    def plate(self, e):
-        from . import stlplater as plater
-        self.log("Plate function activated")
-        plater.StlPlater(size = (800, 580), callback = self.platecb,
-                         parent = self,
-                         build_dimensions = self.build_dimensions_list,
-                         circular_platform = self.settings.circular_bed,
-                         simarrange_path = self.settings.simarrange_path,
-                         antialias_samples = int(self.settings.antialias3dsamples)).Show()
-
-    def plate_gcode(self, e):
-        from . import gcodeplater as plater
-        self.log("G-Code plate function activated")
-        plater.GcodePlater(size = (800, 580), callback = self.platecb,
-                           parent = self,
-                           build_dimensions = self.build_dimensions_list,
-                           circular_platform = self.settings.circular_bed,
-                           antialias_samples = int(self.settings.antialias3dsamples)).Show()
-
-    def platecb(self, name):
-        self.log("Plated %s" % name)
-        self.loadfile(None, name)
-        if self.settings.uimode in ("Tabbed", "Tabbed with platers"):
-            # Switch to page 1 (Status tab)
-            self.notebook.SetSelection(1)
-
     def do_editgcode(self, e = None):
         if self.filename is not None:
             MacroEditor(self.filename, [line.raw for line in self.fgcode], self.doneediting, True)
@@ -536,16 +505,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
 
     def tool_change(self, event):
         self.do_tool(self.extrudersel.GetValue())
-
-    def show_viz_window(self, event):
-        if self.fgcode:
-            self.gwindow.Show(True)
-            self.gwindow.SetToolTip(wx.ToolTip("Mousewheel zooms the display\nShift / Mousewheel scrolls layers"))
-            self.gwindow.Raise()
-
-    def show_edit_layer(self, event):
-        if self.fgcode:
-            self.gviz.editlayer()
 
     def setfeeds(self, e):
         self.feedrates_changed = True
@@ -705,40 +664,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.Bind(wx.EVT_MENU, self.on_exit, m.Append(wx.ID_EXIT, "E&xit", " Closes the Window"))
         self.menustrip.Append(m, "&File")
 
-        # Tools Menu
-        m = wx.Menu()
-        self.Bind(wx.EVT_MENU, self.do_editgcode, m.Append(-1, "&Edit...", " Edit open file"))
-        self.Bind(wx.EVT_MENU, self.plate, m.Append(-1, "Plater", " Compose 3D models into a single plate"))
-        self.Bind(wx.EVT_MENU, self.plate_gcode, m.Append(-1, "G-Code Plater", " Compose G-Codes into a single plate"))
-        self.Bind(wx.EVT_MENU, self.exclude, m.Append(-1, "Excluder", " Exclude parts of the bed from being printed"))
-        self.Bind(wx.EVT_MENU, self.project, m.Append(-1, "Projector", " Project slices"))
-        self.menustrip.Append(m, "&Tools")
-
-        # Advanced Menu
-        m = wx.Menu()
-        self.recoverbtn = m.Append(-1, "Recover", " Recover previous print after a disconnect (homes X, Y, restores Z and E status)")
-        self.recoverbtn.Disable = lambda *a: self.recoverbtn.Enable(False)
-        self.Bind(wx.EVT_MENU, self.recover, self.recoverbtn)
-        self.menustrip.Append(m, "&Advanced")
-
-        if self.settings.slic3rintegration:
-            m = wx.Menu()
-            print_menu = wx.Menu()
-            filament_menu = wx.Menu()
-            printer_menu = wx.Menu()
-            m.AppendSubMenu(print_menu, "Print &settings")
-            m.AppendSubMenu(filament_menu, "&Filament")
-            m.AppendSubMenu(printer_menu, "&Printer")
-            menus = {"print": print_menu,
-                     "filament": filament_menu,
-                     "printer": printer_menu}
-            try:
-                self.load_slic3r_configs(menus)
-                self.menustrip.Append(m, "&Slic3r")
-            except IOError:
-                self.logError("Failed to load Slic3r configuration:" +
-                              "\n" + traceback.format_exc())
-
         # Settings menu
         m = wx.Menu()
         self.macros_menu = wx.Menu()
@@ -746,7 +671,7 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.Bind(wx.EVT_MENU, self.new_macro, self.macros_menu.Append(-1, "<&New...>"))
         self.Bind(wx.EVT_MENU, lambda *e: PronterOptions(self), m.Append(-1, "&Options", " Options dialog"))
 
-        self.Bind(wx.EVT_MENU, lambda x: threading.Thread(target = lambda: self.do_slice("set")).start(), m.Append(-1, "Slicing settings", " Adjust slicing settings"))
+        #self.Bind(wx.EVT_MENU, lambda x: threading.Thread(target = lambda: self.do_slice("set")).start(), m.Append(-1, "Slicing settings", " Adjust slicing settings"))
 
         mItem = m.AppendCheckItem(-1, "Debug communications",
                                   "Print all G-code sent to and received from the printer.")
@@ -766,22 +691,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.Bind(wx.EVT_MENU, self.about,
                   m.Append(-1, "&About Printrun", "Show about dialog"))
         self.menustrip.Append(m, "&Help")
-
-    def project(self, event):
-        """Start Projector tool"""
-        from printrun import projectlayer
-        projectlayer.SettingsFrame(self, self.p).Show()
-
-    def exclude(self, event):
-        """Start part excluder tool"""
-        if not self.fgcode:
-            wx.CallAfter(self.statusbar.SetStatusText, "No file loaded. Please use load first.")
-            return
-        if not self.excluder:
-            from .excluder import Excluder
-            self.excluder = Excluder()
-        self.excluder.pop_window(self.fgcode, bgcolor = self.bgcolor,
-                                 build_dimensions = self.build_dimensions_list)
 
     def about(self, event):
         """Show about dialog"""
@@ -953,25 +862,19 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.settings._add(BooleanSetting("display_progress_on_printer", False, "Display progress on printer", "Show progress on printers display (sent via M117, might not be supported by all printers)", "Printer"))
         self.settings._add(SpinSetting("printer_progress_update_interval", 10., 0, 120, "Printer progress update interval", "Interval in which pronterface sends the progress to the printer if enabled, in seconds", "Printer"))
         self.settings._add(BooleanSetting("cutting_as_extrusion", True, "Display cutting moves", "Show moves where spindle is active as printing moves", "Printer"))
-        self.settings._add(ComboSetting("uimode", "Compact", ["Standard", "Compact", ], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
-        #self.settings._add(ComboSetting("uimode", "Standard", ["Standard", "Compact", "Tabbed", "Tabbed with platers"], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
-        self.settings._add(BooleanSetting("slic3rintegration", False, "Enable Slic3r integration", "Add a menu to select Slic3r profiles directly from Pronterface", "UI"), self.reload_ui)
-        self.settings._add(BooleanSetting("slic3rupdate", False, "Update Slic3r default presets", "When selecting a profile in Slic3r integration menu, also save it as the default Slic3r preset", "UI"))
+        self.settings._add(ComboSetting("uimode", "Standard", ["Standard", "Compact", ], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
         self.settings._add(BooleanSetting("perspective", False, "Use a perspective view instead of orthographic", "A perspective view looks more realistic, but is a bit more confusing to navigate", "Viewer"), self.reload_ui)
         self.settings._add(ComboSetting("antialias3dsamples", "0", ["0", "2", "4", "8"], "Number of anti-aliasing samples", "Amount of anti-aliasing samples used in the 3D viewer", "Viewer"), self.reload_ui)
         self.settings._add(FloatSpinSetting("gcview_path_width", 0.4, 0.01, 2, "Extrusion width for 3D viewer", "Width of printed path in 3D viewer", "Viewer", increment = 0.05), self.update_gcview_params)
         self.settings._add(FloatSpinSetting("gcview_path_height", 0.3, 0.01, 2, "Layer height for 3D viewer", "Height of printed path in 3D viewer", "Viewer", increment = 0.05), self.update_gcview_params)
         self.settings._add(BooleanSetting("lockbox", False, "Display interface lock checkbox", "Display a checkbox that, when check, locks most of Pronterface", "UI"), self.reload_ui)
         self.settings._add(BooleanSetting("lockonstart", False, "Lock interface upon print start", "If lock checkbox is enabled, lock the interface when starting a print", "UI"))
-        self.settings._add(BooleanSetting("refreshwhenloading", True, "Update UI during G-Code load", "Regularly update visualization during the load of a G-Code file", "UI"))
         self.settings._add(HiddenSetting("last_window_width", size[0]))
         self.settings._add(HiddenSetting("last_window_height", size[1]))
         self.settings._add(HiddenSetting("last_window_maximized", False))
         self.settings._add(HiddenSetting("last_sash_position", -1))
-        self.settings._add(HiddenSetting("last_bed_temperature", 0.0))
         self.settings._add(HiddenSetting("last_file_path", ""))
         self.settings._add(HiddenSetting("last_file_filter", 0))
-        self.settings._add(HiddenSetting("last_temperature", 0.0))
         self.settings._add(StaticTextSetting("separator_2d_viewer", "2D viewer options", "", group = "Viewer"))
         self.settings._add(FloatSpinSetting("preview_extrusion_width", 1.0, 0, 10, "Preview extrusion width", "Width of Extrusion in Preview", "Viewer", increment = 0.1), self.update_gviz_params)
         self.settings._add(SpinSetting("preview_grid_step1", 10., 0, 200, "Fine grid spacing", "Fine Grid Spacing", "Viewer"), self.update_gviz_params)
@@ -1037,8 +940,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         trueparam = params_map[param]
         if hasattr(self.gviz, trueparam):
             gviz = self.gviz
-        elif hasattr(self.gwindow, "p") and hasattr(self.gwindow.p, trueparam):
-            gviz = self.gwindow.p
         else:
             return
         if trueparam == "grid":
@@ -1051,8 +952,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
                 self.logError(traceback.format_exc())
         if hasattr(self.gviz, trueparam):
             self.apply_gviz_params(self.gviz, trueparam, value)
-        if hasattr(self.gwindow, "p") and hasattr(self.gwindow.p, trueparam):
-            self.apply_gviz_params(self.gwindow.p, trueparam, value)
 
     def apply_gviz_params(self, widget, param, value):
         setattr(widget, param, value)
@@ -1070,25 +969,16 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             target_color[i] = v
         wx.CallAfter(self.Refresh)
 
-    def update_build_dimensions(self, param, value):
-        pronsole.pronsole.update_build_dimensions(self, param, value)
-        self.update_bed_viz()
-
     def update_bed_viz(self, *args):
         """Update bed visualization when size/type changed"""
         if hasattr(self, "gviz") and hasattr(self.gviz, "recreate_platform"):
             self.gviz.recreate_platform(self.build_dimensions_list, self.settings.circular_bed,
-                grid = (self.settings.preview_grid_step1, self.settings.preview_grid_step2))
-        if hasattr(self, "gwindow") and hasattr(self.gwindow, "recreate_platform"):
-            self.gwindow.recreate_platform(self.build_dimensions_list, self.settings.circular_bed,
                 grid = (self.settings.preview_grid_step1, self.settings.preview_grid_step2))
 
     def update_gcview_params(self, *args):
         need_reload = False
         if hasattr(self, "gviz") and hasattr(self.gviz, "set_gcview_params"):
             need_reload |= self.gviz.set_gcview_params(self.settings.gcview_path_width, self.settings.gcview_path_height)
-        if hasattr(self, "gwindow") and hasattr(self.gwindow, "set_gcview_params"):
-            need_reload |= self.gwindow.set_gcview_params(self.settings.gcview_path_width, self.settings.gcview_path_height)
         if need_reload:
             self.start_viz_thread()
 
@@ -1193,8 +1083,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             self.set("port", port)
         if baud != self.settings.baudrate:
             self.set("baudrate", str(baud))
-        if self.predisconnect_mainqueue:
-            self.recoverbtn.Enable()
 
     def store_predisconnect_state(self):
         self.predisconnect_mainqueue = self.p.mainqueue
@@ -1386,13 +1274,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             output_filename = self.model_to_gcode_filename(self.filename)
             pararray = prepare_command(self.settings.slicecommandpath+self.settings.slicecommand,
                                        {"$s": self.filename, "$o": output_filename, "$a":str(int(45+self.pcba.GetValue()))})
-            """
-            if self.settings.slic3rintegration:
-                for cat, config in self.slic3r_configs.items():
-                    if config:
-                        fpath = os.path.join(self.slic3r_configpath, cat, config)
-                        pararray += ["--load", fpath]
-            """
             self.log("Running " + " ".join(pararray))
             self.slicep = subprocess.Popen(pararray, stdin=subprocess.DEVNULL, stderr = subprocess.STDOUT, stdout = subprocess.PIPE, universal_newlines = True)
             while True:
@@ -1583,8 +1464,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         global pronterface_quitting
         if pronterface_quitting:
             raise PronterfaceQuitException
-        if not self.settings.refreshwhenloading:
-            return
         self.viz_last_layer = layer
         if time.time() - self.viz_last_yield > 1.0:
             time.sleep(0.2)
@@ -1617,7 +1496,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         self.printbtn.SetLabel("&Print")
         self.pausebtn.SetLabel("&Pause")
         self.pausebtn.Enable(False)
-        self.recoverbtn.Disable()
         if not failed and self.p.online:
             self.printbtn.Enable(True)
         self.toolbarsizer.Layout()
@@ -1626,7 +1504,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     def loadviz(self, gcode = None):
         try:
             self.gviz.clear()
-            self.gwindow.p.clear()
             if gcode is not None:
                 generator = self.gviz.addfile_perlayer(gcode, True)
                 next_layer = 0
@@ -1663,10 +1540,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
                 gcode = self.fgcode
                 self.gviz.addfile(gcode)
             wx.CallAfter(self.gviz.Refresh)
-            # Load external window sequentially now that everything is ready.
-            # We can't really do any better as the 3D viewer might clone the
-            # finalized model from the main visualization
-            self.gwindow.p.addfile(gcode)
         except:
             logging.error(traceback.format_exc())
             wx.CallAfter(self.gviz.Refresh)
@@ -1810,8 +1683,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     def printsentcb(self, gline):
         """Callback when a print gcode has been sent"""
         if gline.is_move:
-            if hasattr(self.gwindow, "set_current_gline"):
-                wx.CallAfter(self.gwindow.set_current_gline, gline)
             if hasattr(self.gviz, "set_current_gline"):
                 wx.CallAfter(self.gviz.set_current_gline, gline)
 
@@ -2284,93 +2155,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             pass
         for macro in self.macros.keys():
             self.Bind(wx.EVT_MENU, lambda x, m = macro: self.start_macro(m, self.macros[m]), self.macros_menu.Append(-1, macro))
-
-    #  --------------------------------------------------------------
-    #  Slic3r integration
-    #  --------------------------------------------------------------
-
-    def load_slic3r_configs(self, menus):
-        """List Slic3r configurations and create menu"""
-        # Hack to get correct path for Slic3r config
-        orig_appname = self.app.GetAppName()
-        self.app.SetAppName("Slic3r")
-        configpath = wx.StandardPaths.Get().GetUserDataDir()
-        self.slic3r_configpath = configpath
-        configfile = os.path.join(configpath, "slic3r.ini")
-        if not os.path.exists(configfile):
-            self.app.SetAppName("Slic3rPE")
-            configpath = wx.StandardPaths.Get().GetUserDataDir()
-            self.slic3r_configpath = configpath
-            configfile = os.path.join(configpath, "slic3r.ini")
-        if not os.path.exists(configfile):
-            self.settings.slic3rintegration=False;
-            return
-        self.app.SetAppName(orig_appname)
-        config = self.read_slic3r_config(configfile)
-        version = config.get("dummy", "version") # Slic3r version
-        self.slic3r_configs = {}
-        for cat in menus:
-            menu = menus[cat]
-            pattern = os.path.join(configpath, cat, "*.ini")
-            files = sorted(glob.glob(pattern))
-            try:
-                preset = config.get("presets", cat)
-                # Starting from Slic3r 1.3.0, preset names have no extension
-                if version.split(".") >= ["1","3","0"]: preset += ".ini"
-                self.slic3r_configs[cat] = preset
-            except:
-                preset = None
-                self.slic3r_configs[cat] = None
-            for f in files:
-                name = os.path.splitext(os.path.basename(f))[0]
-                item = menu.Append(-1, name, f, wx.ITEM_RADIO)
-                item.Check(os.path.basename(f) == preset)
-                self.Bind(wx.EVT_MENU,
-                          lambda event, cat = cat, f = f:
-                          self.set_slic3r_config(configfile, cat, f), item)
-
-    def read_slic3r_config(self, configfile, parser = None):
-        """Helper to read a Slic3r configuration file"""
-        import configparser
-        parser = configparser.RawConfigParser()
-
-        class add_header:
-            def __init__(self, f):
-                self.f = f
-                self.header = '[dummy]'
-
-            def readline(self):
-                if self.header:
-                    try: return self.header
-                    finally: self.header = None
-                else:
-                    return self.f.readline()
-
-            def __iter__(self):
-                import itertools
-                return itertools.chain([self.header], iter(self.f))
-
-        parser.readfp(add_header(open(configfile)), configfile)
-        return parser
-
-    def set_slic3r_config(self, configfile, cat, file):
-        """Set new preset for a given category"""
-        self.slic3r_configs[cat] = file
-        if self.settings.slic3rupdate:
-            config = self.read_slic3r_config(configfile)
-            version = config.get("dummy", "version") # Slic3r version
-            preset = os.path.basename(file)
-            # Starting from Slic3r 1.3.0, preset names have no extension
-            if version.split(".") >= ["1","3","0"]:
-                preset = os.path.splitext(preset)[0]
-            config.set("presets", cat, preset)
-            f = StringIO.StringIO()
-            config.write(f)
-            data = f.getvalue()
-            f.close()
-            data = data.replace("[dummy]\n", "")
-            with open(configfile, "w") as f:
-                f.write(data)
 
 class PronterApp(wx.App):
 

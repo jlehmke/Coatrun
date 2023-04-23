@@ -86,8 +86,8 @@ def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
     root.offbtn = self.toolbar.AddTool(4, 'Off', wx.Image('images/power_button_off.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Turn printer off",)
     self.toolbar.Bind(wx.EVT_TOOL, root.off, id=4)
 
-    root.offbtn = self.toolbar.AddTool(5, 'Edit', wx.Image('images/edit.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Edit G-Code",)
-    self.toolbar.Bind(wx.EVT_TOOL, root.show_edit_layer, id=5)
+    root.editbtn = self.toolbar.AddTool(5, 'Edit', wx.Image('images/edit.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), "Edit G-Code",)
+    self.toolbar.Bind(wx.EVT_TOOL, root.do_editgcode, id=5)
 
     self.Add(self.toolbar, 0, border = 5)
     
