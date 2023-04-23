@@ -344,12 +344,10 @@ class Settings:
           --start-gcode "" --end-gcode "" --travel-speed 200 --perimeter-speed 50 --first-layer-speed 50 --infill-speed 50 --gap-fill-speed 50 --small-perimeter-speed 100% --external-perimeter-speed 100% --solid-infill-speed 100% --top-solid-infill-speed 100% \
           --extrusion-width 2 --dont-arrange \
           ', "Slice command", "Slice command", "External"))
-        self._add(StringSetting("sliceoptscommand", "slic3r", "Slicer options command", "Slice settings command", "External"))
         defaultscadrpath =""
         self._add(StringSetting("scadcommandpath", defaultscadrpath, "Path to slicer", "Path to slicer", "External"))
         scad = 'openscad'
         self._add(StringSetting("scadcommand", scad + ' -o $o $s', "OpenScad command", "OpenScad command", "External"))
-        self._add(StringSetting("scadoptscommand", "openscad", "OpenScad options command", "OpenScad settings command", "External"))
         self._add(StringSetting("scadscript", 'translate([$x,$y,0]) rotate([0,0,$a]) linear_extrude(0.12) offset(-2) import("$s");', "OpenScad script", "OpenScad script", "External"))
         self._add(StringSetting("start_command", "", "Start command", "Executable to run when the print is started", "External"))
         self._add(StringSetting("final_command", "", "Final command", "Executable to run when the print is finished", "External"))

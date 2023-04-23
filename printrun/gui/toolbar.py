@@ -17,14 +17,6 @@ import wx
 
 def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
     if not parentpanel: parentpanel = root.panel
-    if root.settings.lockbox:
-        root.locker = wx.CheckBox(parentpanel, label = "Lock" + "  ")
-        root.locker.Bind(wx.EVT_CHECKBOX, root.lock)
-        root.locker.SetToolTip(wx.ToolTip("Lock graphical interface"))
-        glob = wx.BoxSizer(wx.HORIZONTAL)
-        parentpanel = root.newPanel(parentpanel)
-        glob.Add(parentpanel, 1, flag = wx.EXPAND)
-        glob.Add(root.locker, 0, flag = wx.ALIGN_CENTER)
     ToolbarSizer = wx.WrapSizer if use_wrapsizer else wx.BoxSizer
     self = ToolbarSizer(wx.HORIZONTAL)
     root.rescanbtn = wx.Button(parentpanel, -1, "Port", size = (-1, -1), style = wx.BU_EXACTFIT)
@@ -93,8 +85,4 @@ def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
     
     self.AddStretchSpacer(prop = 4)
 
-    if root.settings.lockbox:
-        parentpanel.SetSizer(self)
-        return glob
-    else:
-        return self
+    return self

@@ -944,53 +944,6 @@ class pronsole(cmd.Cmd):
     def help_load(self):
         self.log("Loads a gcode file (with tab-completion)")
 
-    def do_slice(self, l):
-        l = l.split()
-        if len(l) == 0:
-            self.logError("No file name given.")
-            return
-        settings = 0
-        if l[0] == "set":
-            settings = 1
-        else:
-            self.log("Slicing file: %s" % l[0])
-            if not(os.path.exists(l[0])):
-                self.logError("File not found!")
-                return
-        try:
-            if settings:
-                command = self.settings.slicecommandpath+self.settings.sliceoptscommand
-                self.log("Entering slicer settings: %s" % command)
-                run_command(command, blocking = True)
-            else:
-                command = self.settings.slicecommandpath+self.settings.slicecommand
-                stl_name = l[0]
-                gcode_name = stl_name.replace(".stl", "_export.gcode").replace(".STL", "_export.gcode")
-                run_command(command,
-                            {"$s": stl_name,
-                             "$o": gcode_name},
-                            blocking = True)
-                self.log("Loading sliced file.")
-                self.do_load(l[0].replace(".stl", "_export.gcode"))
-        except Exception as e:
-            self.logError("Slicing failed: %s" % e)
-
-    def complete_slice(self, text, line, begidx, endidx):
-        s = line.split()
-        if len(s) > 2:
-            return []
-        if (len(s) == 1 and line[-1] == " ") or (len(s) == 2 and line[-1] != " "):
-            if len(s) > 1:
-                return [i[len(s[1]) - len(text):] for i in glob.glob(s[1] + "*/") + glob.glob(s[1] + "*.stl")]
-            else:
-                return glob.glob("*/") + glob.glob("*.stl")
-
-    def help_slice(self):
-        self.log("Creates a gcode file from an stl model using the slicer (with tab-completion)")
-        self.log("slice filename.stl - create gcode file")
-        self.log("slice filename.stl view - create gcode file and view using skeiniso (if using skeinforge)")
-        self.log("slice set - adjust slicer settings")
-
     #  --------------------------------------------------------------
     #  Print/upload handling
     #  --------------------------------------------------------------

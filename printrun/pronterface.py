@@ -285,10 +285,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
                 self.set("last_sash_position", self.splitterwindow.GetSashPosition())
             self.splitterwindow.Bind(wx.EVT_SPLITTER_SASH_POS_CHANGED, sash_position_changed)
 
-        # Set gcview parameters here as they don't get set when viewers are
-        # created
-        self.update_gcview_params()
-
         # Finalize
         if self.p.online:
             self.gui_set_connected()
@@ -671,8 +667,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.Bind(wx.EVT_MENU, self.new_macro, self.macros_menu.Append(-1, "<&New...>"))
         self.Bind(wx.EVT_MENU, lambda *e: PronterOptions(self), m.Append(-1, "&Options", " Options dialog"))
 
-        #self.Bind(wx.EVT_MENU, lambda x: threading.Thread(target = lambda: self.do_slice("set")).start(), m.Append(-1, "Slicing settings", " Adjust slicing settings"))
-
         mItem = m.AppendCheckItem(-1, "Debug communications",
                                   "Print all G-code sent to and received from the printer.")
         m.Check(mItem.GetId(), self.p.loud)
@@ -838,15 +832,9 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         
         info.AddArtist('Ahmet Cem TURAN @ahmetcemturan (icons, code)')
         info.AddArtist('Duane Johnson (code,graphics)')
-        
-        info.AddTranslator('freddii (German translation)')
-        info.AddTranslator('Christian Metzen @metzench (German translation)')
-        info.AddTranslator('Cyril Laguilhon-Debat (French translation)')
-        info.AddTranslator('@AvagSayan (Armenian translation)')
-        info.AddTranslator('Jonathan Marsden (French translation)')
-        info.AddTranslator('Ruben Lubbes (NL translation)')
-        info.AddTranslator('aboobed (Arabic translation)')
-        info.AddTranslator('Alessandro Ranellucci @alranel (Italian translation)')
+        info.AddArtist('Creaticca Ltd. (icon)')
+        info.AddArtist('CoreUI (icon)')
+        info.AddArtist('Jason von Nieda (icons)')
         
         wx.adv.AboutBox(info)
 
@@ -855,46 +843,23 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     #  --------------------------------------------------------------
 
     def _add_settings(self, size):
-        self.settings._add(StringSetting("simarrange_path", "", "Simarrange command", "Path to the simarrange binary to use in the STL plater", "External"))
-        self.settings._add(BooleanSetting("circular_bed", False, "Circular build platform", "Draw a circular (or oval) build platform instead of a rectangular one", "Printer"), self.update_bed_viz)
-        self.settings._add(SpinSetting("extruders", 0, 1, 5, "Extruders count", "Number of extruders", "Printer"))
         self.settings._add(BooleanSetting("clamp_jogging", False, "Clamp manual moves", "Prevent manual moves from leaving the specified build dimensions", "Printer"))
         self.settings._add(BooleanSetting("display_progress_on_printer", False, "Display progress on printer", "Show progress on printers display (sent via M117, might not be supported by all printers)", "Printer"))
         self.settings._add(SpinSetting("printer_progress_update_interval", 10., 0, 120, "Printer progress update interval", "Interval in which pronterface sends the progress to the printer if enabled, in seconds", "Printer"))
         self.settings._add(BooleanSetting("cutting_as_extrusion", True, "Display cutting moves", "Show moves where spindle is active as printing moves", "Printer"))
         self.settings._add(ComboSetting("uimode", "Standard", ["Standard", "Compact", ], "Interface mode", "Standard interface is a one-page, three columns layout with controls/visualization/log\nCompact mode is a one-page, two columns layout with controls + log/visualization", "UI"), self.reload_ui)
-        self.settings._add(BooleanSetting("perspective", False, "Use a perspective view instead of orthographic", "A perspective view looks more realistic, but is a bit more confusing to navigate", "Viewer"), self.reload_ui)
-        self.settings._add(ComboSetting("antialias3dsamples", "0", ["0", "2", "4", "8"], "Number of anti-aliasing samples", "Amount of anti-aliasing samples used in the 3D viewer", "Viewer"), self.reload_ui)
-        self.settings._add(FloatSpinSetting("gcview_path_width", 0.4, 0.01, 2, "Extrusion width for 3D viewer", "Width of printed path in 3D viewer", "Viewer", increment = 0.05), self.update_gcview_params)
-        self.settings._add(FloatSpinSetting("gcview_path_height", 0.3, 0.01, 2, "Layer height for 3D viewer", "Height of printed path in 3D viewer", "Viewer", increment = 0.05), self.update_gcview_params)
-        self.settings._add(BooleanSetting("lockbox", False, "Display interface lock checkbox", "Display a checkbox that, when check, locks most of Pronterface", "UI"), self.reload_ui)
-        self.settings._add(BooleanSetting("lockonstart", False, "Lock interface upon print start", "If lock checkbox is enabled, lock the interface when starting a print", "UI"))
         self.settings._add(HiddenSetting("last_window_width", size[0]))
         self.settings._add(HiddenSetting("last_window_height", size[1]))
         self.settings._add(HiddenSetting("last_window_maximized", False))
         self.settings._add(HiddenSetting("last_sash_position", -1))
         self.settings._add(HiddenSetting("last_file_path", ""))
         self.settings._add(HiddenSetting("last_file_filter", 0))
-        self.settings._add(StaticTextSetting("separator_2d_viewer", "2D viewer options", "", group = "Viewer"))
-        self.settings._add(FloatSpinSetting("preview_extrusion_width", 1.0, 0, 10, "Preview extrusion width", "Width of Extrusion in Preview", "Viewer", increment = 0.1), self.update_gviz_params)
-        self.settings._add(SpinSetting("preview_grid_step1", 10., 0, 200, "Fine grid spacing", "Fine Grid Spacing", "Viewer"), self.update_gviz_params)
-        self.settings._add(SpinSetting("preview_grid_step2", 50., 0, 200, "Coarse grid spacing", "Coarse Grid Spacing", "Viewer"), self.update_gviz_params)
-        self.settings._add(ColorSetting("bgcolor", self._preferred_bgcolour_hex(), "Background color", "Pronterface background color", "Colors", isRGBA=False), self.reload_ui)
-        self.settings._add(ColorSetting("graph_color_background", "#FAFAC7", "Graph background color", "Color of the temperature graph background", "Colors", isRGBA=False), self.reload_ui)
-        self.settings._add(ColorSetting("graph_color_text", "#172C2C", "Graph text color", "Color of the temperature graph text", "Colors", isRGBA=False), self.reload_ui)
-        self.settings._add(ColorSetting("graph_color_grid", "#5A5A5A", "Graph grid color", "Color of the temperature graph grid", "Colors", isRGBA=False), self.reload_ui)
-        self.settings._add(ColorSetting("graph_color_fan", "#00000080", "Graph fan line color", "Color of the temperature graph fan speed line", "Colors"), self.reload_ui)
-        self.settings._add(ColorSetting("gcview_color_background", "#FAFAC7FF", "3D view background color", "Color of the 3D view background", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_travel", "#99999999", "3D view travel moves color", "Color of travel moves in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_tool0", "#FF000099", "3D view print moves color", "Color of print moves with tool 0 in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_tool1", "#AC0DFF99", "3D view tool 1 moves color", "Color of print moves with tool 1 in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_tool2", "#FFCE0099", "3D view tool 2 moves color", "Color of print moves with tool 2 in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_tool3", "#FF009F99", "3D view tool 3 moves color", "Color of print moves with tool 3 in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_tool4", "#00FF8F99", "3D view tool 4 moves color", "Color of print moves with tool 4 in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_printed", "#33BF0099", "3D view printed moves color", "Color of printed moves in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_current", "#00E5FFCC", "3D view current layer moves color", "Color of moves in current layer in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(ColorSetting("gcview_color_current_printed", "#196600CC", "3D view printed current layer moves color", "Color of already printed moves from current layer in 3D view", "Colors"), self.update_gcview_colors)
-        self.settings._add(StaticTextSetting("note1", "Note:", "Changing some of these settings might require a restart to get effect", group = "UI"))
+        #self.settings._add(StaticTextSetting("separator_2d_viewer", "2D viewer options", "", group = "UI"))
+        self.settings._add(FloatSpinSetting("preview_extrusion_width", 1.0, 0, 10, "Preview extrusion width", "Width of Extrusion in Preview", "UI", increment = 0.1), self.update_gviz_params)
+        self.settings._add(SpinSetting("preview_grid_step1", 10., 0, 200, "Fine grid spacing", "Fine Grid Spacing", "UI"), self.update_gviz_params)
+        self.settings._add(SpinSetting("preview_grid_step2", 50., 0, 200, "Coarse grid spacing", "Coarse Grid Spacing", "UI"), self.update_gviz_params)
+        self.settings._add(HiddenSetting("bgcolor", self._preferred_bgcolour_hex()))
+        #self.settings._add(ColorSetting("bgcolor", self._preferred_bgcolour_hex(), "Background color", "Pronterface background color", "Colors", isRGBA=False), self.reload_ui)
         recentfilessetting = StringSetting("recentfiles", "[]")
         recentfilessetting.hidden = True
         self.settings._add(recentfilessetting, self.update_recent_files)
@@ -968,19 +933,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
         for i, v in enumerate(color):
             target_color[i] = v
         wx.CallAfter(self.Refresh)
-
-    def update_bed_viz(self, *args):
-        """Update bed visualization when size/type changed"""
-        if hasattr(self, "gviz") and hasattr(self.gviz, "recreate_platform"):
-            self.gviz.recreate_platform(self.build_dimensions_list, self.settings.circular_bed,
-                grid = (self.settings.preview_grid_step1, self.settings.preview_grid_step2))
-
-    def update_gcview_params(self, *args):
-        need_reload = False
-        if hasattr(self, "gviz") and hasattr(self.gviz, "set_gcview_params"):
-            need_reload |= self.gviz.set_gcview_params(self.settings.gcview_path_width, self.settings.gcview_path_height)
-        if need_reload:
-            self.start_viz_thread()
 
     #  --------------------------------------------------------------
     #  Statusbar handling
@@ -1579,8 +1531,6 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     def startcb(self, resuming = False):
         """Callback on print start"""
         pronsole.pronsole.startcb(self, resuming)
-        if self.settings.lockbox and self.settings.lockonstart:
-            wx.CallAfter(self.lock, force = True)
 
     def endcb(self):
         """Callback on print end/pause"""

@@ -100,39 +100,6 @@ def add_extra_controls(self, root, parentpanel, extra_buttons = None, mini_mode 
     if not standalone_mode:
         ebuttonspanel = root.newPanel(parentpanel)
         ebuttonssizer = wx.BoxSizer(wx.HORIZONTAL)
-        if root.settings.extruders > 1:
-            etool_sel_panel = esettingspanel if mini_mode else ebuttonspanel
-            etool_label = wx.StaticText(etool_sel_panel, -1, "Tool:")
-            if root.settings.extruders == 2:
-                root.extrudersel = wx.Button(etool_sel_panel, -1, "0", style = wx.BU_EXACTFIT)
-                root.extrudersel.SetToolTip(wx.ToolTip("Click to switch current extruder"))
-
-                def extrudersel_cb(event):
-                    if root.extrudersel.GetLabel() == "1":
-                        new = "0"
-                    else:
-                        new = "1"
-                    root.extrudersel.SetLabel(new)
-                    root.tool_change(event)
-                root.extrudersel.Bind(wx.EVT_BUTTON, extrudersel_cb)
-                root.extrudersel.GetValue = root.extrudersel.GetLabel
-                root.extrudersel.SetValue = root.extrudersel.SetLabel
-            else:
-                choices = [str(i) for i in range(0, root.settings.extruders)]
-                root.extrudersel = wx.ComboBox(etool_sel_panel, -1, choices = choices,
-                                               style = wx.CB_DROPDOWN | wx.CB_READONLY,
-                                               size = (50, -1))
-                root.extrudersel.SetToolTip(wx.ToolTip("Select current extruder"))
-                root.extrudersel.SetValue(choices[0])
-                root.extrudersel.Bind(wx.EVT_COMBOBOX, root.tool_change)
-            root.printerControls.append(root.extrudersel)
-            if mini_mode:
-                add("etool_label", etool_label, container = esettingssizer, flag = wx.ALIGN_CENTER)
-                add("etool_val", root.extrudersel, container = esettingssizer)
-            else:
-                ebuttonssizer.Add(etool_label, flag = wx.ALIGN_CENTER)
-                ebuttonssizer.Add(root.extrudersel)
-
         for key in ["extrude", "reverse"]:
             desc = root.cpbuttons[key]
             btn = wx.Button(ebuttonspanel, -1, desc.label, style = wx.BU_EXACTFIT)
