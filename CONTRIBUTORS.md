@@ -117,16 +117,6 @@ An enormous number of people have contributed to Printrun (thank you!):
 - Creaticca Ltd. (icon)
 - CoreUI (icon)
 - Jason von Nieda (icons)
-    
-# Translators
-- freddii (German translation)
-- Christian Metzen @metzench (German translation)
-- Cyril Laguilhon-Debat (French translation)
-- @AvagSayan (Armenian translation)
-- Jonathan Marsden (French translation)
-- Ruben Lubbes (NL translation)
-- aboobed (Arabic translation)
-- Alessandro Ranellucci @alranel (Italian translation)
         
 This list was compiled manually.
 
