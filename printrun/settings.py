@@ -347,6 +347,8 @@ class Settings:
         defaultscadrpath =""
         self._add(StringSetting("scadcommandpath", defaultscadrpath, "Path to slicer", "Path to slicer", "External"))
         scad = 'openscad'
+        self._add(StringSetting("extrude_cmd", "M400 M3 G4 P100", "Extrude command", "G-Code snippet to replace G11 with. Commands are splitted at G and M characters.", "External"))
+        self._add(StringSetting("retract_cmd", "M400 M5 G4 P500", "Retract command", "G-Code snippet to replace G10 with. Commands are splitted at G and M characters.", "External"))
         self._add(StringSetting("scadcommand", scad + ' -o $o $s', "OpenScad command", "OpenScad command", "External"))
         self._add(StringSetting("scadscript", 'translate([$x,$y,0]) rotate([0,0,$a]) linear_extrude(0.12) offset(-2) import("$s");', "OpenScad script", "OpenScad script", "External"))
         self._add(StringSetting("start_command", "", "Start command", "Executable to run when the print is started", "External"))

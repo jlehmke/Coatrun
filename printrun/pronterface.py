@@ -1240,6 +1240,25 @@ Coatrun. If not, see <http://www.gnu.org/licenses/>."""
                           + "\n" + traceback.format_exc())
             self.stopsf = 1
 
+    def post_process_gcode(self):
+        output_filename = self.model_to_gcode_filename(self.filename)
+
+        f = open(output_filename,"r")
+        lines = f.readlines()
+        f.close()
+        
+        f = open(output_filename,"w")
+        for line in lines:
+
+            if line.startswith("M82 ") or line.startswith("M83 ") or line.startswith("M104 ") or line.startswith("M140 "):
+                continue
+            
+            line = line.replace("G10",self.settings.retract_cmd.replace(" G", "\nG").replace(" M", "\nM"))
+            line = line.replace("G11",self.settings.extrude_cmd.replace(" G", "\nG").replace(" M", "\nM"))
+
+            f.write(line)
+        f.close()
+
     def slice_monitor(self):
         while not self.stopsf:
             try:
@@ -1248,6 +1267,9 @@ Coatrun. If not, see <http://www.gnu.org/licenses/>."""
                 pass
             time.sleep(0.1)
         fn = self.filename
+
+        self.post_process_gcode()
+
         try:
             self.load_gcode_async(self.model_to_gcode_filename(self.filename))
         except:
