@@ -1412,10 +1412,10 @@ class pronsole(cmd.Cmd):
         self.p.send_now("G90")
 
     def do_retract(self):
-        self.p.send_now("G10")
+        self.p.send_now("M5") # G!0
 
     def do_recover(self):
-        self.p.send_now("G11")
+        self.p.send_now("M3") # G11
 
     def do_dwell_ms(self, time):
         self.p.send_now("G4 P" + str(int(time))) # ms
