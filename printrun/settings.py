@@ -326,7 +326,7 @@ class Settings:
         # defaults here.
         # the initial value determines the type
         self._add(StringSetting("port", "", "Serial port", "Port used to communicate with printer"))
-        self._add(ComboSetting("baudrate", 115200, self.__baudrate_list(), "Baud rate", "Communications Speed"))
+        self._add(ComboSetting("baudrate", 250000, self.__baudrate_list(), "Baud rate", "Communications Speed"))
         self._add(BooleanSetting("tcp_streaming_mode", False, "TCP streaming mode", "When using a TCP connection to the printer, the streaming mode will not wait for acks from the printer to send new commands. This will break things such as ETA prediction, but can result in smoother prints."), root.update_tcp_streaming_mode)
         self._add(BooleanSetting("rpc_server", True, "RPC server", "Enable RPC server to allow remotely querying print status"), root.update_rpc_server)
         self._add(BooleanSetting("dtr", True, "DTR", "Disabling DTR would prevent Arduino (RAMPS) from resetting upon connection", "Printer"))
